@@ -14,71 +14,94 @@ Organizations:
                 Type: Signature
                 Rule: "OR('OrdererMSP.admin')"
 
-    - &Org1
-        Name: Org1MSP
-        ID: Org1MSP
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+    - &Penangkar
+        Name: PenangkarMSP
+        ID: PenangkarMSP
+        MSPDir: crypto-config/peerOrganizations/penangkar.example.com/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+                Rule: "OR('PenangkarMSP.admin', 'PenangkarMSP.peer', 'PenangkarMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+                Rule: "OR('PenangkarMSP.admin', 'PenangkarMSP.client')"
             Admins:
                 Type: Signature
-                Rule: "OR('Org1MSP.admin')"
+                Rule: "OR('PenangkarMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('Org1MSP.peer')"
+                Rule: "OR('PenangkarMSP.peer')"
 
         AnchorPeers:
-            - Host: peer0.org1.example.com
+            - Host: peer0.penangkar.example.com
               Port: 7051
 
-    - &Org2
-        Name: Org2MSP
-        ID: Org2MSP
-        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+    - &Petani
+        Name: PetaniMSP
+        ID: PetaniMSP
+        MSPDir: crypto-config/peerOrganizations/petani.example.com/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+                Rule: "OR('PetaniMSP.admin', 'PetaniMSP.peer', 'PetaniMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+                Rule: "OR('PetaniMSP.admin', 'PetaniMSP.client')"
             Admins:
                 Type: Signature
-                Rule: "OR('Org2MSP.admin')"
+                Rule: "OR('PetaniMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('Org2MSP.peer')"
+                Rule: "OR('PetaniMSP.peer')"
 
         AnchorPeers:
-            - Host: peer0.org2.example.com
+            - Host: peer0.petani.example.com
+              Port: 9051
+
+    - &Pengumpul
+        Name: PengumpulMSP
+        ID: PengumpulMSP
+        MSPDir: crypto-config/peerOrganizations/pengumpul.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('PengumpulMSP.admin', 'PengumpulMSP.peer', 'PengumpulMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('PengumpulMSP.admin', 'PengumpulMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('PengumpulMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('PengumpulMSP.peer')"
+
+        AnchorPeers:
+            - Host: peer0.pengumpul.example.com
               Port: 9051
     
-    - &Org3
-        Name: Org3MSP
-        ID: Org3MSP
-        MSPDir: crypto-config/peerOrganizations/org3.example.com/msp
+    - &Pedagang
+        Name: PedagangMSP
+        ID: PedagangMSP
+        MSPDir: crypto-config/peerOrganizations/pedagang.example.com/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+                Rule: "OR('PedagangMSP.admin', 'PedagangMSP.peer', 'PedagangMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+                Rule: "OR('PedagangMSP.admin', 'PedagangMSP.client')"
             Admins:
                 Type: Signature
-                Rule: "OR('Org3MSP.admin')"
+                Rule: "OR('PedagangMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('Org3MSP.peer')"
+                Rule: "OR('PedagangMSP.peer')"
 
         AnchorPeers:
-            - Host: peer0.org3.example.com
+            - Host: peer0.pedagang.example.com
               Port: 9051
+
 
 Capabilities:
     Channel: &ChannelCapabilities
@@ -171,9 +194,10 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *Org1
-                - *Org2
-                - *Org3
+                - *Penangkar
+                - *Petani
+                - *Pengumpul
+                - *Pedagang
             Capabilities:
                 <<: *ApplicationCapabilities
     OrdererGenesis:
@@ -209,6 +233,7 @@ Profiles:
         Consortiums:
             SampleConsortium:
                 Organizations:
-                - *Org1
-                - *Org2
-                - *Org3
+                - *Penangkar
+                - *Petani
+                - *Pengumpul
+                - *Pedagang

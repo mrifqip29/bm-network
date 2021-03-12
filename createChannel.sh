@@ -1,38 +1,47 @@
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/artifacts/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-export PEER0_ORG1_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-export PEER0_ORG2_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-export PEER0_ORG3_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+export PEER0_PENANGKAR_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/penangkar.example.com/peers/peer0.penangkar.example.com/tls/ca.crt
+export PEER0_PETANI_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/petani.example.com/peers/peer0.petani.example.com/tls/ca.crt
+export PEER0_PENGUMPUL_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/pengumpul.example.com/peers/peer0.pengumpul.example.com/tls/ca.crt
+export PEER0_PEDAGANG_CA=${PWD}/artifacts/channel/crypto-config/peerOrganizations/pedagang.example.com/peers/peer0.pedagang.example.com/tls/ca.crt
 export FABRIC_CFG_PATH=${PWD}/artifacts/channel/config/
 
 export CHANNEL_NAME=mychannel
 
-setGlobalsForPeer0Org1(){
-    export CORE_PEER_LOCALMSPID="Org1MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+setGlobalsForPeer0Penangkar(){
+    export CORE_PEER_LOCALMSPID="PenangkarMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_PENANGKAR_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/penangkar.example.com/users/Admin@penangkar.example.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
 }
 
-setGlobalsForPeer0Org2(){
-    export CORE_PEER_LOCALMSPID="Org2MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:9051
+setGlobalsForPeer0Petani(){
+    export CORE_PEER_LOCALMSPID="PetaniMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_PETANI_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/petani.example.com/users/Admin@petani.example.com/msp
+    export CORE_PEER_ADDRESS=localhost:8051
     
 }
 
-setGlobalsForPeer0Org3(){
-    export CORE_PEER_LOCALMSPID="Org3MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
+setGlobalsForPeer0Pengumpul(){
+    export CORE_PEER_LOCALMSPID="PengumpulMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_PENGUMPUL_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/pengumpul.example.com/users/Admin@pengumpul.example.com/msp
+    export CORE_PEER_ADDRESS=localhost:10051
+    
+}
+
+setGlobalsForPeer0Pedagang(){
+    export CORE_PEER_LOCALMSPID="PedagangMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_PEDAGANG_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/pedagang.example.com/users/Admin@pedagang.example.com/msp
     export CORE_PEER_ADDRESS=localhost:11051
     
 }
 
 createChannel(){
     rm -rf ./channel-artifacts/*
-    setGlobalsForPeer0Org1
+    setGlobalsForPeer0Penangkar
     
     peer channel create -o localhost:7050 -c $CHANNEL_NAME \
     --ordererTLSHostnameOverride orderer.example.com \
@@ -49,26 +58,32 @@ removeOldCrypto(){
 
 
 joinChannel(){
-    setGlobalsForPeer0Org1
+    setGlobalsForPeer0Penangkar
     peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
     
     
-    setGlobalsForPeer0Org2
+    setGlobalsForPeer0Petani
     peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
     
-    setGlobalsForPeer0Org3
+    setGlobalsForPeer0Pengumpul
+    peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
+
+    setGlobalsForPeer0Pedagang
     peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
     
 }
 
 updateAnchorPeers(){
-    setGlobalsForPeer0Org1
+    setGlobalsForPeer0Penangkar
     peer channel update -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ./artifacts/channel/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA
     
-    setGlobalsForPeer0Org2
+    setGlobalsForPeer0Petani
     peer channel update -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ./artifacts/channel/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA
 
-    setGlobalsForPeer0Org3
+    setGlobalsForPeer0Pengumpul
+    peer channel update -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ./artifacts/channel/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA
+
+    setGlobalsForPeer0Pedagang
     peer channel update -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ./artifacts/channel/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA
     
 }

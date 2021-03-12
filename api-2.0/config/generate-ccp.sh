@@ -15,27 +15,36 @@ function json_ccp {
         ./ccp-template.json
 }
 
-ORG=1
+ORG=Penangkar
 P0PORT=7051
 CAPORT=7054
-PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/tlscacerts/tls-localhost-7054-ca-org1-example-com.pem
-CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/org1.example.com/msp/tlscacerts/ca.crt
+PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/penangkar.example.com/peers/peer0.penangkar.example.com/tls/tlscacerts/tls-localhost-7054-ca-penangkar-example-com.pem
+CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/penangkar.example.com/msp/tlscacerts/ca.crt
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM )" > connection-org1.json
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM )" > connection-penangkar.json
 
-ORG=2
-P0PORT=9051
+ORG=Petani
+P0PORT=8051
 CAPORT=8054
-PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/tlscacerts/tls-localhost-8054-ca-org2-example-com.pem
-CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/org2.example.com/msp/tlscacerts/ca.crt
+PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/petani.example.com/peers/peer0.petani.example.com/tls/tlscacerts/tls-localhost-8054-ca-petani-example-com.pem
+CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/petani.example.com/msp/tlscacerts/ca.crt
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > connection-org2.json
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > connection-petani.json
 
-ORG=3
-P0PORT=11051
+ORG=Pengumpul
+P0PORT=10051
 CAPORT=10054
-PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/tlscacerts/tls-localhost-10054-ca-org3-example-com.pem
-CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/org3.example.com/msp/tlscacerts/ca.crt
+PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/pengumpul.example.com/peers/peer0.pengumpul.example.com/tls/tlscacerts/tls-localhost-10054-ca-pengumpul-example-com.pem
+CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/pengumpul.example.com/msp/tlscacerts/ca.crt
 
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > connection-org3.json
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > connection-pengumpul.json
+
+ORG=Pedagang
+P0PORT=11051
+CAPORT=11054
+PEERPEM=../../artifacts/channel/crypto-config/peerOrganizations/pedagang.example.com/peers/peer0.pedagang.example.com/tls/tlscacerts/tls-localhost-11054-ca-pedagang-example-com.pem
+CAPEM=../../artifacts/channel/crypto-config/peerOrganizations/pedagang.example.com/msp/tlscacerts/ca.crt
+
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > connection-pedagang.json
