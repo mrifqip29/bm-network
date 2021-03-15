@@ -268,18 +268,20 @@ app.post("/users/login", async function (req, res) {
     app.get("secret")
   );
 
+  console.log(token);
+
   let isUserRegistered = await helper.isUserRegistered(username, orgName);
 
   await helper.loginUserMongo(req, res, token);
 
-  // if (isUserRegistered) {
-  //   res.json({ success: true, message: { token: token } });
-  // } else {
-  //   res.json({
-  //     success: false,
-  //     message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
-  //   });
-  // }
+  if (isUserRegistered) {
+    res.json({ success: true, message: { token: token } });
+  } else {
+    res.json({
+      success: false,
+      message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
+    });
+  }
 });
 
 // Invoke transaction on chaincode on target peers

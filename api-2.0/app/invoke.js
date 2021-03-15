@@ -77,6 +77,7 @@ const invokeTransaction = async (
           "BawangContract:" + fcn,
           args[0]
         );
+        break;
       case "CreateUser":
         result = await contract.submitTransaction(
           "UserContract:" + fcn,

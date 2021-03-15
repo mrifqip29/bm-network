@@ -408,7 +408,6 @@ const registerUserMongo = async (req, res) => {
     alamatToko: alamatToko,
     alamatLahan: alamatLahan,
     kelompokTani: kelompokTani,
-    userID: userID,
   });
 
   user.save();
@@ -436,12 +435,13 @@ const loginUserMongo = async (req, res, token) => {
       //   expiresIn: maxAge,
       // };
       //const token = await jwt.sign(data, process.env.JWT_SECRET, options);
-
       //res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+      console.log(`token in loginUserMongo ${token}`);
 
       return res
         .status(200)
-        .cookie("jwt", token, { maxAge: 2 * 24 * 60 * 60 })
+        .cookie("jwt", token)
         .set("Authorization", "Bearer " + token)
         .json({
           message: `${userDB.username} successfully login`,
