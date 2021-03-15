@@ -4,6 +4,9 @@ var { Gateway, Wallets } = require("fabric-network");
 const path = require("path");
 const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
+const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+const bcryptjs = require("bcryptjs");
 
 const util = require("util");
 
@@ -67,7 +70,6 @@ const getWalletPath = async (org) => {
 };
 
 // TODO: make affiliation
-
 const getAffiliation = async (org) => {
   if (org == "Penangkar") {
     return "org1.department1";
@@ -83,26 +85,13 @@ const getAffiliation = async (org) => {
 const getRegisteredUser = async (username, userOrg, isJson) => {
   let ccp = await getCCP(userOrg);
 
-  console.log(`Got ccp :   ${ccp}`);
-
   const caURL = await getCaUrl(userOrg, ccp);
-
-  console.log(`Got caURL :   ${caURL}`);
 
   const ca = new FabricCAServices(caURL);
 
-  console.log(`Got ca :   ${ca}`);
-
   const walletPath = await getWalletPath(userOrg);
 
-  console.log(`Got walletPath : ${walletPath}`);
-  console.log(typeof walletPath);
-
-  console.log(`Masuk await Wallets.newFileSystemWallet(walletPath);`);
-
   const wallet = await Wallets.newFileSystemWallet(walletPath);
-
-  console.log(`Keluar await Wallets.newFileSystemWallet(walletPath);`);
   console.log(`Wallet path: ${walletPath}`);
 
   const userIdentity = await wallet.get(username);
@@ -311,7 +300,7 @@ const enrollAdmin = async (org, ccp) => {
   }
 };
 
-const registerAndGerSecret = async (username, userOrg) => {
+const registerAndGetSecret = async (username, userOrg) => {
   let ccp = await getCCP(userOrg);
 
   const caURL = await getCaUrl(userOrg, ccp);
@@ -371,6 +360,106 @@ const registerAndGerSecret = async (username, userOrg) => {
   return response;
 };
 
+const registerUserMongo = async (req, res) => {
+  const {
+    noHP,
+    nama,
+    username,
+    password,
+    ttl,
+    noKK,
+    noNPWP,
+    nik,
+    orgName,
+    luasLahanHa,
+    alamatToko,
+    alamatLahan,
+    kelompokTani,
+  } = req.body;
+
+  let usernameDB = await User.findOne({ username: username });
+
+  if (usernameDB) {
+    return res.status(404).json({
+      status: false,
+      message: "Username has been taken",
+    });
+  }
+
+  const hashed = await bcryptjs.hash(password, 10);
+
+  if (!kelompokTani) {
+    kelompokTani = "";
+  }
+
+  let userID = orgName + Math.random().toString(27).substring(4, 8);
+
+  const user = new User({
+    nama: nama,
+    noHp: noHP,
+    username: username,
+    password: hashed,
+    ttl: ttl,
+    noKK: noKK,
+    noNPWP: noNPWP,
+    nik: nik,
+    orgName: orgName,
+    luasLahan: luasLahanHa,
+    alamatToko: alamatToko,
+    alamatLahan: alamatLahan,
+    kelompokTani: kelompokTani,
+    userID: userID,
+  });
+
+  user.save();
+
+  console.log("Register user on MongoDB success");
+
+  // return res.status("201").json({
+  //   message: "Register user success",
+  //   data: user,
+  // });
+};
+
+const loginUserMongo = async (req, res, token) => {
+  const { username, password } = req.body;
+
+  const userDB = await User.findOne({ username: username });
+  if (userDB) {
+    const passwordDB = await bcryptjs.compare(password, userDB.password);
+    if (passwordDB) {
+      // const data = {
+      //   id: userDB._id,
+      // };
+      // const maxAge = 2 * 24 * 60 * 60; //2 hari
+      // const options = {
+      //   expiresIn: maxAge,
+      // };
+      //const token = await jwt.sign(data, process.env.JWT_SECRET, options);
+
+      //res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+      return res
+        .status(200)
+        .cookie("jwt", token, { maxAge: 2 * 24 * 60 * 60 })
+        .set("Authorization", "Bearer " + token)
+        .json({
+          message: `${userDB.username} successfully login`,
+          token: token,
+          user: userDB,
+        });
+    } else {
+      return res.status(404).json({
+        message: "Username and password combination does not match",
+      });
+    }
+  } else {
+    return res.status(404).json({
+      message: "Username and password combination does not match",
+    });
+  }
+};
+
 exports.getRegisteredUser = getRegisteredUser;
 
 module.exports = {
@@ -378,5 +467,7 @@ module.exports = {
   getWalletPath: getWalletPath,
   getRegisteredUser: getRegisteredUser,
   isUserRegistered: isUserRegistered,
-  registerAndGerSecret: registerAndGerSecret,
+  registerAndGetSecret: registerAndGetSecret,
+  registerUserMongo: registerUserMongo,
+  loginUserMongo: loginUserMongo,
 };
