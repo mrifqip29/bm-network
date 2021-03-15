@@ -74,7 +74,12 @@ const invokeTransaction = async (
         break;
       case "CreateBawang":
         result = await contract.submitTransaction(
-          "SmartContract:" + fcn,
+          "BawangContract:" + fcn,
+          args[0]
+        );
+      case "CreateUser":
+        result = await contract.submitTransaction(
+          "UserContract:" + fcn,
           args[0]
         );
         console.log(result.toString());
@@ -82,7 +87,7 @@ const invokeTransaction = async (
         break;
       case "GetBawangByID":
         result = await contract.submitTransaction(
-          "SmartContract:" + fcn,
+          "BawangContract:" + fcn,
           args[0]
         );
         console.log(result.toString());
