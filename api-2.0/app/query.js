@@ -66,7 +66,14 @@ const query = async (
       case "GetBawangByID":
         console.log("=============");
         result = await contract.evaluateTransaction(
-          "SmartContract:" + fcn,
+          "BawangContract:" + fcn,
+          args[0]
+        );
+        break;
+      case "GetHistoryForAssetByID":
+        console.log("=============");
+        result = await contract.evaluateTransaction(
+          "BawangContract:" + fcn,
           args[0]
         );
         break;
