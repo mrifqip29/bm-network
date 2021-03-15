@@ -52,8 +52,10 @@ createChannel(){
 removeOldCrypto(){
     rm -rf ./api-1.4/crypto/*
     rm -rf ./api-1.4/fabric-client-kv-org1/*
-    rm -rf ./api-2.0/org1-wallet/*
-    rm -rf ./api-2.0/org2-wallet/*
+    rm -rf ./api-2.0/penangkar-wallet/*
+    rm -rf ./api-2.0/petani-wallet/*
+    rm -rf ./api-2.0/pengumpul-wallet/*
+    rm -rf ./api-2.0/pedagang-wallet/*
 }
 
 
@@ -88,7 +90,7 @@ updateAnchorPeers(){
     
 }
 
-removeOldCrypto
+# removeOldCrypto
 
 createChannel
 joinChannel
