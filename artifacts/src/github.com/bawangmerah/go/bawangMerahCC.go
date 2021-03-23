@@ -27,15 +27,15 @@ type User struct {
 	Nama string `json:"nama"`
 
 	Username    string `json:"username"`
-	Password   string `json:"password"`
-	MemberType string `json:"memberType"`
+	//Password   string `json:"password"`
+	OrgName string `json:"orgName"`
 
 	TTL  string `json:"ttl"`
-	NoKK   string `json:"noKK"`
-	NoNPWP string `json:"noNPWP"`
-	NIK string `json:"nik"`
+	NoKK   int64 `json:"noKK"`
+	NoNPWP int64 `json:"noNPWP"`
+	NIK int64 `json:"nik"`
 
-	LuasLahanHa string `json:"luasLahanHa"`
+	LuasLahanHa float64 `json:"luasLahanHa"`
 	AlamatToko string `json:"alamatToko"`
 	AlamatLahan string `json:"alamatLahan"`
 	KelompokTani string `json:"kelompokTani"`
@@ -54,26 +54,32 @@ type Bawang struct {
 	AlamatPengirim   string `json:"alamatPengirim"`
 	AlamatPenerima   string `json:"alamatPenerima"`
 
-	Kuantitas string `json:"kuantitas"`
-	Harga     string `json:"harga"`
-	CreatedAt int64  `json:"createdAt"`
+	KuantitasBenihKg float64 `json:"kuantitasBenihKg"`
+	HargaBenihPerKg  float64 `json:"hargaBenihPerKg"`
+	HargaBenihTotal	float64	`json:"hargaBenihTotal"`
+
+	KuantitasBawangKg float64 `json:"kuantitasBawangKg"`
+	HargaBawangPerKg  float64 `json:"hargaBawangPerKg"`
+	HargaBawangTotal	float64	`json:"hargaBawangTotal"`
+
+	CreatedAt 	int64  	`json:"createdAt"`
 
 	UmurBenih       string `json:"umurBenih"`
 	UmurPanen       string `json:"umurPanen"`
 	LamaPenyimpanan string `json:"lamaPenyimpanan"`
 	Varietas        string `json:"varietas"`
-	HargaBenih      string `json:"hargaBenih"`
+	HargaBenih      float64 `json:"hargaBenih"`
 
-	UkuranUmbi    string `json:"ukuranUmbi"`
-	KadarAir      string `json:"kadarAir"`
-	Pupuk         string `json:"pupuk"`
-	Pestisida     string `json:"pestisida"`
-	Perlakuan     string `json:"perlakuan"`
-	Produktivitas string `json:"produktivitas"`
+	UkuranUmbi    	string 	`json:"ukuranUmbi"` // besar, sedang, dan kecil - Sumarni dan Hidayat 2005
+	KadarAirPersen 	float64 `json:"kadarAirPersen"`
+	Pupuk         	string 	`json:"pupuk"`
+	Pestisida     	string 	`json:"pestisida"`
+	Perlakuan     	string 	`json:"perlakuan"`
+	Produktivitas 	string 	`json:"produktivitas"`
 
 	TanggalMasuk     string `json:"tanggalMasuk"`
 	AamatGudang      string `json:"alamatGudang"`
-	TeknikSorting    string `json:"teknikSorting"`
+	TeknikSorting    string `json:"teknikSorting"` // Rancang Bangun Alat Pemilah Bawang Merah Berdasarkan Ukuran Diameter
 	MetodePengemasan string `json:"metodePengemasan"`
 
 	Status      string `json:"status"`
@@ -86,6 +92,8 @@ type Bawang struct {
 
 	TxID3 string `json:"txID3"`
 	UID3 string `json:"uid3"`
+
+	IsGenesis bool `json:"isGenesis"`
 	// BatchID     string `json:"batchID"`
 }
 
@@ -102,6 +110,7 @@ func (s *BawangContract) CreateBawang(ctx contractapi.TransactionContextInterfac
 
 	bawang.ID = ctx.GetStub().GetTxID()
 
+	// get creator uid
 	creatorUID, err := ctx.GetClientIdentity().GetID()
 
 	if err != nil {
@@ -109,6 +118,12 @@ func (s *BawangContract) CreateBawang(ctx contractapi.TransactionContextInterfac
 	}
 
 	bawang.CreatorUID = creatorUID
+
+	bawang.HargaBenihTotal = bawang.KuantitasBenihKg * bawang.HargaBenihPerKg
+
+	bawang.HargaBawangTotal = bawang.KuantitasBawangKg * bawang.HargaBawangPerKg
+
+	bawang.IsGenesis = true
 
 	err = json.Unmarshal([]byte(bawangData), &bawang)
 	if err != nil {
@@ -127,6 +142,164 @@ func (s *BawangContract) CreateBawang(ctx contractapi.TransactionContextInterfac
 	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
 }
 
+// prevID should be get from GetBawangForQuery()
+func (s *BawangContract) CreateTrxBawangByPenangkar(ctx contractapi.TransactionContextInterface, bawangData, prevID string) (string, error) {
+
+	if len(bawangData) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang data")
+	}
+
+	bawangInit, err := s.GetBawangByID(ctx, prevID) 
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while getting bawang init. %s", err.Error())
+	}
+
+	var bawang Bawang
+
+	bawang.CreatedAt = time.Now().Unix()
+
+	// set id (key)
+	bawang.ID = ctx.GetStub().GetTxID()
+	// set txid1 
+	bawang.TxID1 = ctx.GetStub().GetTxID()
+	// get creator uid
+	creatorUID, err := ctx.GetClientIdentity().GetID()
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while getting creator id. %s", err.Error())
+	}
+	// set creatorUID
+	bawang.CreatorUID = creatorUID
+	// set UID1 a
+	bawang.UID1 = creatorUID
+
+	bawang.IsGenesis = false
+
+	err = json.Unmarshal([]byte(bawangData), &bawang)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while unmarshling bawang. %s", err.Error())
+	}
+
+	if bawangInit.KuantitasBenihKg - bawang.KuantitasBenihKg > 0 {
+
+		s.updateBawangKuantitasByID(ctx, prevID, bawang.ID)
+
+		bawangAsBytes, err := json.Marshal(bawang)
+		if err != nil {
+			return "", fmt.Errorf("Failed while marshling bawang. %s", err.Error())
+		}
+	
+		// Insert into blockchain
+		ctx.GetStub().SetEvent("CreateAsset", bawangAsBytes)
+	
+		// Put state using key and data
+		return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
+	} else {
+		return "", fmt.Errorf("Bawang quantity is not sufficient. %s", err.Error())
+	}
+	
+}
+
+// UpdateBawangTrxByPetani update the UsernamePengirim, UsernamePenerima, AlamatPengirim, and AlamatPenerima by ID
+func (s *BawangContract) UpdateBawangTrxByPetani(ctx contractapi.TransactionContextInterface, prevID string) (string, error) {
+
+	if len(prevID) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	bawangAsBytes, err := ctx.GetStub().GetState(prevID)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", prevID)
+	}
+
+	// Create new bawang object
+	bawang := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawang)
+
+	// // Change the indentity
+	// bawang.UsernamePengirim = NewUsernamePengirim
+	// bawang.UsernamePenerima = NewUsernamePenerima
+	// bawang.AlamatPengirim = NewAlamatPengirim
+	// bawang.AlamatPenerima = NewAlamatPenerima
+
+	// set txid2
+	bawang.TxID2 = ctx.GetStub().GetTxID()
+	// get creator uid
+	creatorUID, err := ctx.GetClientIdentity().GetID()
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while getting creator id. %s", err.Error())
+	}
+
+	bawang.UID2 = creatorUID
+
+	bawangAsBytes, err = json.Marshal(bawang)
+	if err != nil {
+		return "", fmt.Errorf("Failed while marshling car. %s", err.Error())
+	}
+
+	//  txId := ctx.GetStub().GetTxID()
+
+	// Update the state
+	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
+}
+
+// UpdateBawangTrxByPengumpul update the UsernamePengirim, UsernamePenerima, AlamatPengirim, and AlamatPenerima by ID
+func (s *BawangContract) UpdateBawangTrxByPengumpul(ctx contractapi.TransactionContextInterface, prevID string) (string, error) {
+
+	if len(prevID) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	bawangAsBytes, err := ctx.GetStub().GetState(prevID)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", prevID)
+	}
+
+	// Create new bawang object
+	bawang := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawang)
+
+	// // Change the indentity
+	// bawang.UsernamePengirim = NewUsernamePengirim
+	// bawang.UsernamePenerima = NewUsernamePenerima
+	// bawang.AlamatPengirim = NewAlamatPengirim
+	// bawang.AlamatPenerima = NewAlamatPenerima
+
+	// set txid2
+	bawang.TxID3 = ctx.GetStub().GetTxID()
+	// get creator uid
+	creatorUID, err := ctx.GetClientIdentity().GetID()
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while getting creator id. %s", err.Error())
+	}
+
+	bawang.UID3 = creatorUID
+
+	bawangAsBytes, err = json.Marshal(bawang)
+	if err != nil {
+		return "", fmt.Errorf("Failed while marshling car. %s", err.Error())
+	}
+
+	//  txId := ctx.GetStub().GetTxID()
+
+	// Update the state
+	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
+}
+
 // CreateUser function to create user and insert it on blockchain
 func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, userData string) (string, error) {
 
@@ -138,18 +311,22 @@ func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, u
 
 	user.CreatedAt = time.Now().Unix()
 
-	// Create userID based on its memberType
-	if user.MemberType == "Penangkar" {
-		user.ID = user.Username + "-Pkr"
-	} else if user.MemberType == "Petani" {
-		user.ID = user.Username + "-Ptn"
-	} else if user.MemberType == "Pengumpul" {
-		user.ID = user.Username + "-Ppl"
-	} else if user.MemberType == "Pedagang" {
-		user.ID = user.Username + "-Pdg"
-	}
+	//create user ID
+	creatorUID, err := ctx.GetClientIdentity().GetID()
+	user.ID = creatorUID
 
-	err := json.Unmarshal([]byte(userData), &user)
+	// Create userID based on its memberType
+	// if user.MemberType == "Penangkar" {
+	// 	user.ID = user.Username + "-Pkr"
+	// } else if user.MemberType == "Petani" {
+	// 	user.ID = user.Username + "-Ptn"
+	// } else if user.MemberType == "Pengumpul" {
+	// 	user.ID = user.Username + "-Ppl"
+	// } else if user.MemberType == "Pedagang" {
+	// 	user.ID = user.Username + "-Pdg"
+	// }
+
+	err = json.Unmarshal([]byte(userData), &user)
 	if err != nil {
 		return "", fmt.Errorf("Failed while unmarshling user. %s", err.Error())
 	}
@@ -164,6 +341,71 @@ func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, u
 
 	// Put state using key and data
 	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(user.ID, userAsBytes)
+}
+
+func (s *BawangContract) AddBawangKuantitasByID(ctx contractapi.TransactionContextInterface, bawangID string, quantity float64) (string, error) {
+	if len(bawangID) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	bawangAsBytes, err := ctx.GetStub().GetState(bawangID)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", bawangID)
+	}
+
+	// Create new bawang object
+	bawang := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawang)
+
+	bawang.KuantitasBenihKg += quantity
+
+	bawangAsBytes, err = json.Marshal(bawang)
+
+	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
+}
+
+func (s *BawangContract) updateBawangKuantitasByID(ctx contractapi.TransactionContextInterface, bawangID, nextID string) (string, error) {
+	if len(bawangID) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	if len(nextID) == 0 {
+		return "", fmt.Errorf("Please pass the correct next bawang id")
+	}
+
+	bawangAsBytes, err := ctx.GetStub().GetState(bawangID)
+
+	bawangNextAsBytes, err := ctx.GetStub().GetState(nextID)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", bawangID)
+	}
+
+	if bawangNextAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", bawangID)
+	}
+
+	// Create new bawang object
+	bawang := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawang)
+
+	bawangNext := new(Bawang)
+	_ = json.Unmarshal(bawangNextAsBytes, bawangNext)
+
+	bawang.KuantitasBenihKg -= bawangNext.KuantitasBenihKg
+
+	bawangAsBytes, err = json.Marshal(bawang)
+
+	return ctx.GetStub().GetTxID(), ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
 }
 
 // UpdateBawangOwnerByID function the update the UsernamePengirim, UsernamePenerima, AlamatPengirim, and AlamatPenerima by ID
@@ -281,45 +523,56 @@ func (s *BawangContract) GetBawangByID(ctx contractapi.TransactionContextInterfa
 	return bawang, nil
 }
 
-func (s *BawangContract) GetContractsForQuery(ctx contractapi.TransactionContextInterface, queryString string) ([]Bawang, error) {
+// it should be GetBawangForQuery
+func (s *BawangContract) GetBawangForQuery(ctx contractapi.TransactionContextInterface, queryString string) (string, error) {
 
 	queryResults, err := s.getQueryResultForQueryString(ctx, queryString)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read from ----world state. %s", err.Error())
+		return "", fmt.Errorf("Failed to read from world state. %s", err.Error())
 	}
 
 	return queryResults, nil
 
 }
 
-func (s *BawangContract) getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]Bawang, error) {
+func (s *BawangContract) getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) (string, error) {
 
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	results := []Bawang{}
-
-	for resultsIterator.HasNext() {
-		response, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		newBawang := new(Bawang)
-
-		err = json.Unmarshal(response.Value, newBawang)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, *newBawang)
-	}
-	return results, nil
+	fmt.Printf("- getQueryResultForQueryString queryString:\n%s\n", queryString)
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    defer resultsIterator.Close()
+    if err != nil {
+        return "", err
+    }
+    // buffer is a JSON array containing QueryRecords
+    var buffer bytes.Buffer
+    buffer.WriteString("[")
+    bArrayMemberAlreadyWritten := false
+    for resultsIterator.HasNext() {
+        queryResponse,
+        err := resultsIterator.Next()
+        if err != nil {
+            return "", err
+        }
+        // Add a comma before array members, suppress it for the first array member
+        if bArrayMemberAlreadyWritten == true {
+            buffer.WriteString(",")
+        }
+        buffer.WriteString("{\"Key\":")
+        buffer.WriteString("\"")
+        buffer.WriteString(queryResponse.Key)
+        buffer.WriteString("\"")
+        buffer.WriteString(", \"Record\":")
+        // Record is a JSON object, so we write as-is
+        buffer.WriteString(string(queryResponse.Value))
+        buffer.WriteString("}")
+        bArrayMemberAlreadyWritten = true
+    }
+    buffer.WriteString("]")
+    fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
+    return string(buffer.Bytes()), nil
 }
+
 
 func (s *BawangContract) GetDocumentUsingCarContract(ctx contractapi.TransactionContextInterface, documentID string) (string, error) {
 	if len(documentID) == 0 {
@@ -359,7 +612,7 @@ func main() {
 
 	chaincode, err := contractapi.NewChaincode(new(BawangContract), new(UserContract))
 	if err != nil {
-		fmt.Printf("Error create bawang chaincode: %s", err.Error())
+		fmt.Printf("Error create bawang merah chaincode: %s", err.Error())
 		return
 	}
 	if err := chaincode.Start(); err != nil {
