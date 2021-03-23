@@ -28,7 +28,7 @@ mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false,
+    //useFindAndModify: false,
     useCreateIndex: true,
   })
   .then((res) => {
@@ -120,7 +120,7 @@ app.post("/register", async function (req, res) {
 
   var username = req.body.username;
   var password = req.body.password;
-  var orgName = req.body.memberType;
+  var orgName = req.body.orgName;
 
   logger.debug("End point : /users");
   logger.debug("Request body : " + req.body);
@@ -272,10 +272,25 @@ app.post("/users/login", async function (req, res) {
 
   let isUserRegistered = await helper.isUserRegistered(username, orgName);
 
-  await helper.loginUserMongo(req, res, token);
+  // TODO: error handling when password is false
 
   if (isUserRegistered) {
-    res.json({ success: true, message: { token: token } });
+    let userDB = await helper.loginUserMongo(req, res, token);
+    if (userDB) {
+      res
+        .status(200)
+        .cookie("jwt", token)
+        .set("Authorization", "Bearer " + token)
+        .json({
+          message: `${userDB.username} successfully login`,
+          token: token,
+          user: userDB,
+        });
+    } else {
+      res.status(404).json({
+        message: "Username and password combination does not match",
+      });
+    }
   } else {
     res.json({
       success: false,
