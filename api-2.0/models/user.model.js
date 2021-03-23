@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   nik: {
     type: Number,
   },
-  memberType: {
+  orgName: {
     type: String,
   },
   luasLahan: {
