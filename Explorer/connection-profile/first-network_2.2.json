@@ -27,7 +27,7 @@
 	"channels": {
 		"mychannel": {
 			"peers": {
-				"peer0.org1.example.com": {}
+				"peer0.penangkar.example.com": {}
 			},
 			"connection": {
 				"timeout": {
