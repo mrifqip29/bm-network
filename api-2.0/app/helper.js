@@ -186,6 +186,8 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     `Successfully registered and enrolled admin user ${username} and imported it into the wallet`
   );
 
+  console.log(`${username} has been successfully enrolled`);
+
   var response = {
     success: true,
     message: username + " enrolled Successfully",
@@ -438,25 +440,14 @@ const loginUserMongo = async (req, res, token) => {
       //res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
 
       console.log(`token in loginUserMongo ${token}`);
+      console.log(`type of userDB ${typeof userDB}`);
 
-      return res
-        .status(200)
-        .cookie("jwt", token)
-        .set("Authorization", "Bearer " + token)
-        .json({
-          message: `${userDB.username} successfully login`,
-          token: token,
-          user: userDB,
-        });
+      return userDB;
     } else {
-      return res.status(404).json({
-        message: "Username and password combination does not match",
-      });
+      return false;
     }
   } else {
-    return res.status(404).json({
-      message: "Username and password combination does not match",
-    });
+    return false;
   }
 };
 
