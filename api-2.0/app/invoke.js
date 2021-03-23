@@ -77,6 +77,8 @@ const invokeTransaction = async (
           "BawangContract:" + fcn,
           args[0]
         );
+        console.log(result.toString());
+        result = { txid: result.toString() };
         break;
       case "CreateUser":
         result = await contract.submitTransaction(
@@ -86,10 +88,29 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
-      case "GetBawangByID":
+      case "CreateTrxBawangByPenangkar":
         result = await contract.submitTransaction(
           "BawangContract:" + fcn,
-          args[0]
+          args[0],
+          args[1]
+        );
+        console.log(result.toString());
+        result = { txid: result.toString() };
+        break;
+      case "UpdateBawangTrxByPetani":
+        result = await contract.submitTransaction(
+          "BawangContract:" + fcn,
+          args[0],
+          args[1]
+        );
+        console.log(result.toString());
+        result = { txid: result.toString() };
+        break;
+      case "UpdateBawangTrxByPengumpul":
+        result = await contract.submitTransaction(
+          "BawangContract:" + fcn,
+          args[0],
+          args[1]
         );
         console.log(result.toString());
         result = { txid: result.toString() };

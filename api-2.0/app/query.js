@@ -77,6 +77,13 @@ const query = async (
           args[0]
         );
         break;
+      case "GetBawangForQuery":
+        console.log("=============");
+        result = await contract.evaluateTransaction(
+          "BawangContract:" + fcn,
+          args[0]
+        );
+        break;
       case "GetCarById":
         console.log("=============");
         result = await contract.evaluateTransaction(
