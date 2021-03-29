@@ -115,6 +115,15 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
+      case "AddBawangKuantitasByID":
+        result = await contract.submitTransaction(
+          "BawangContract:" + fcn,
+          args[0],
+          args[1]
+        );
+        console.log(result.toString());
+        result = { txid: result.toString() };
+        break;
       case "CreateDocument":
         result = await contract.submitTransaction(
           "DocumentContract:" + fcn,

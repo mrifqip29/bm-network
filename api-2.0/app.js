@@ -16,6 +16,8 @@ const cors = require("cors");
 const constants = require("./config/constants.json");
 const mongoose = require("mongoose");
 
+const RouteUser = require("./routes/user");
+
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
 
@@ -52,7 +54,7 @@ app.use(
   expressJWT({
     secret: process.env.JWT_SECRET,
   }).unless({
-    path: ["/users", "/users/login", "/register"],
+    path: ["/user", "/login", "/register"],
   })
 );
 app.use(bearerToken());
@@ -62,8 +64,8 @@ logger.level = "debug";
 app.use((req, res, next) => {
   logger.debug("New req for %s", req.originalUrl);
   if (
-    req.originalUrl.indexOf("/users") >= 0 ||
-    req.originalUrl.indexOf("/users/login") >= 0 ||
+    req.originalUrl.indexOf("/user") >= 0 ||
+    req.originalUrl.indexOf("/login") >= 0 ||
     req.originalUrl.indexOf("/register") >= 0
   ) {
     return next();
@@ -110,86 +112,86 @@ function getErrorMessage(field) {
   return response;
 }
 
-// Register and enroll user
-// TODO:
-// req --> username, orgName, ppassword, name, domisili, luasLahan, kelompokTani
-// res --> userID* = username + orgName (pkr,ptn,ppl,pdg)
-app.post("/register", async function (req, res) {
-  var noHP = req.body.noHP;
-  var nama = req.body.nama;
-
-  var username = req.body.username;
-  var password = req.body.password;
-  var orgName = req.body.orgName;
-
-  logger.debug("End point : /users");
-  logger.debug("Request body : " + req.body);
-
-  if (!username) {
-    res.json(getErrorMessage("'username'"));
-    return;
-  }
-  if (!password) {
-    res.json(getErrorMessage("'password'"));
-    return;
-  }
-  if (!nama) {
-    res.json(getErrorMessage("'nama'"));
-    return;
-  }
-  if (!noHP) {
-    res.json(getErrorMessage("'noHP'"));
-    return;
-  }
-  if (!orgName) {
-    res.json(getErrorMessage("'orgName'"));
-    return;
-  }
-
-  var token = jwt.sign(
-    {
-      exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
-      username: username,
-      orgName: orgName,
-    },
-    app.get("secret")
-  );
-
-  // wallet input
-  let response = await helper.getRegisteredUser(username, orgName, true);
-
-  logger.debug(
-    "-- returned from registering the username %s for organization %s",
-    username,
-    orgName
-  );
-
-  // mongo input
-  let mongoRes = await helper.registerUserMongo(req, res);
-
-  if (response && typeof response !== "string") {
-    logger.debug(
-      "Successfully registered the username %s for organization %s",
-      username,
-      orgName
-    );
-    response.token = token;
-    res.json(response);
-  } else {
-    logger.debug(
-      "Failed to register the username %s for organization %s with::%s",
-      username,
-      orgName,
-      response
-    );
-    res.json({ success: false, message: response });
-  }
-});
+app.use("/", RouteUser);
 
 // Register and enroll user
 // app.post("/register", async function (req, res) {
+//   var noHP = req.body.noHP;
+//   var nama = req.body.nama;
+
+//   var username = req.body.username;
+//   var password = req.body.password;
+//   var orgName = req.body.orgName;
+
+//   logger.debug("End point : /users");
+//   logger.debug("Request body : " + req.body);
+
+//   if (!username) {
+//     res.json(getErrorMessage("'username'"));
+//     return;
+//   }
+//   if (!password) {
+//     res.json(getErrorMessage("'password'"));
+//     return;
+//   }
+//   if (!nama) {
+//     res.json(getErrorMessage("'nama'"));
+//     return;
+//   }
+//   if (!noHP) {
+//     res.json(getErrorMessage("'noHP'"));
+//     return;
+//   }
+//   if (!orgName) {
+//     res.json(getErrorMessage("'orgName'"));
+//     return;
+//   }
+
+//   var token = jwt.sign(
+//     {
+//       exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
+//       username: username,
+//       orgName: orgName,
+//     },
+//     app.get("secret")
+//   );
+
+//   // wallet input
+//   let response = await helper.getRegisteredUser(username, orgName, true);
+
+//   logger.debug(
+//     "-- returned from registering the username %s for organization %s",
+//     username,
+//     orgName
+//   );
+
+//   // mongo input
+//   let mongoRes = await helper.registerUserMongo(req, res);
+
+//   if (response && typeof response !== "string") {
+//     logger.debug(
+//       "Successfully registered the username %s for organization %s",
+//       username,
+//       orgName
+//     );
+//     response.token = token;
+//     res.status(200).json({message: response, data: mongoRes});
+//   } else {
+//     logger.debug(
+//       "Failed to register the username %s for organization %s with::%s",
+//       username,
+//       orgName,
+//       response
+//     );
+//     res.status(500).json({ success: false, message: response});
+//   }
+// });
+
+// Login and get jwt
+// app.post("/login", async function (req, res) {
 //   var username = req.body.username;
 //   var orgName = req.body.orgName;
+
 //   logger.debug("End point : /users");
 //   logger.debug("User name : " + username);
 //   logger.debug("Org name  : " + orgName);
@@ -213,91 +215,34 @@ app.post("/register", async function (req, res) {
 
 //   console.log(token);
 
-//   let response = await helper.registerAndGetSecret(username, orgName);
+//   let isUserRegistered = await helper.isUserRegistered(username, orgName);
 
-//   logger.debug(
-//     "-- returned from registering the username %s for organization %s",
-//     username,
-//     orgName
-//   );
-//   if (response && typeof response !== "string") {
-//     logger.debug(
-//       "Successfully registered the username %s for organization %s",
-//       username,
-//       orgName
-//     );
-//     response.token = token;
-//     res.json(response);
+//   // TODO: error handling when password is false
+
+//   if (isUserRegistered) {
+//     let userDB = await helper.loginUserMongo(req, res, token);
+//     if (userDB) {
+//       res
+//         .status(200)
+//         .cookie("jwt", token)
+//         .set("Authorization", "Bearer " + token)
+//         .json({
+//           message: `${userDB.username} successfully login`,
+//           token: token,
+//           user: userDB,
+//         });
+//     } else {
+//       res.status(404).json({
+//         message: "Username and password combination does not match",
+//       });
+//     }
 //   } else {
-//     logger.debug(
-//       "Failed to register the username %s for organization %s with::%s",
-//       username,
-//       orgName,
-//       response
-//     );
-//     res.json({ success: false, message: response });
+//     res.json({
+//       success: false,
+//       message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
+//     });
 //   }
 // });
-
-// Login and get jwt
-// TODO:
-// req --> username, orgName, passowrd
-// res --> token
-app.post("/users/login", async function (req, res) {
-  var username = req.body.username;
-  var orgName = req.body.orgName;
-
-  logger.debug("End point : /users");
-  logger.debug("User name : " + username);
-  logger.debug("Org name  : " + orgName);
-  if (!username) {
-    res.json(getErrorMessage("'username'"));
-    return;
-  }
-  if (!orgName) {
-    res.json(getErrorMessage("'orgName'"));
-    return;
-  }
-
-  var token = jwt.sign(
-    {
-      exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
-      username: username,
-      orgName: orgName,
-    },
-    app.get("secret")
-  );
-
-  console.log(token);
-
-  let isUserRegistered = await helper.isUserRegistered(username, orgName);
-
-  // TODO: error handling when password is false
-
-  if (isUserRegistered) {
-    let userDB = await helper.loginUserMongo(req, res, token);
-    if (userDB) {
-      res
-        .status(200)
-        .cookie("jwt", token)
-        .set("Authorization", "Bearer " + token)
-        .json({
-          message: `${userDB.username} successfully login`,
-          token: token,
-          user: userDB,
-        });
-    } else {
-      res.status(404).json({
-        message: "Username and password combination does not match",
-      });
-    }
-  } else {
-    res.json({
-      success: false,
-      message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
-    });
-  }
-});
 
 // Invoke transaction on chaincode on target peers
 app.post(

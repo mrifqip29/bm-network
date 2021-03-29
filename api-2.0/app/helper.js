@@ -394,7 +394,7 @@ const registerUserMongo = async (req, res) => {
     kelompokTani = "";
   }
 
-  let userID = orgName + Math.random().toString(27).substring(4, 8);
+  //let userID = orgName + Math.random().toString(27).substring(4, 8);
 
   const user = new User({
     nama: nama,
@@ -415,6 +415,7 @@ const registerUserMongo = async (req, res) => {
   user.save();
 
   console.log("Register user on MongoDB success");
+  return user
 
   // return res.status("201").json({
   //   message: "Register user success",
@@ -440,7 +441,8 @@ const loginUserMongo = async (req, res, token) => {
       //res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
 
       console.log(`token in loginUserMongo ${token}`);
-      console.log(`type of userDB ${typeof userDB}`);
+      console.log(`User in database:`);
+      console.log(`${userDB}`);
 
       return userDB;
     } else {
@@ -450,6 +452,10 @@ const loginUserMongo = async (req, res, token) => {
     return false;
   }
 };
+
+const authUserMongo = async (req, res, token) => {
+
+}
 
 exports.getRegisteredUser = getRegisteredUser;
 
