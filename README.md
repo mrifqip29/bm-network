@@ -1,4 +1,4 @@
-# Bawang Merah
+# Bawang Merah Blockchain Network
 
 ### Original source code by Adhav Pavan
 
