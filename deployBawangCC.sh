@@ -157,7 +157,7 @@ checkCommitReadynessPetani() {
 
     setGlobalsForPeer0Petani
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_PETANI_CA \
+        --peerAddresses localhost:8051 --tlsRootCertFiles $PEER0_PETANI_CA \
         --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
     echo "===================== checking commit readyness from petani ===================== "
 }
@@ -183,7 +183,7 @@ checkCommitReadynessPengumpul() {
 
     setGlobalsForPeer0Pengumpul
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
-        --peerAddresses localhost:11051 --tlsRootCertFiles $PEER0_PENGUMPUL_CA \
+        --peerAddresses localhost:10051 --tlsRootCertFiles $PEER0_PENGUMPUL_CA \
         --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
     echo "===================== checking commit readyness from pengumpul ===================== "
 }

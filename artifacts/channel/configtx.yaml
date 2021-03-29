@@ -56,7 +56,7 @@ Organizations:
 
         AnchorPeers:
             - Host: peer0.petani.example.com
-              Port: 9051
+              Port: 8051
 
     - &Pengumpul
         Name: PengumpulMSP
@@ -78,7 +78,7 @@ Organizations:
 
         AnchorPeers:
             - Host: peer0.pengumpul.example.com
-              Port: 9051
+              Port: 10051
     
     - &Pedagang
         Name: PedagangMSP
@@ -100,7 +100,7 @@ Organizations:
 
         AnchorPeers:
             - Host: peer0.pedagang.example.com
-              Port: 9051
+              Port: 11051
 
 
 Capabilities:
