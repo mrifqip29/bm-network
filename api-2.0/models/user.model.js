@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "nama tidak boleh kosong"],
   },
-  nomorHP: {
+  noHP: {
     type: String,
   },
   username: {

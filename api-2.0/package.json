@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "./node_modules/nodemon/bin/nodemon.js src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
     "mongodb": "^3.6.5",
     "mongoose": "^5.12.0",
     "npm": "^7.6.3",
+    "pm2": "^4.5.5",
     "save": "^2.4.0"
   }
 }
