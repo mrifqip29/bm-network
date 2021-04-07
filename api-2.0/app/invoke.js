@@ -22,13 +22,13 @@ const invokeTransaction = async (
   fcn,
   args,
   username,
-  org_name,
+  orgName,
   transientData
 ) => {
   try {
-    const ccp = await helper.getCCP(org_name);
+    const ccp = await helper.getCCP(orgName);
 
-    const walletPath = await helper.getWalletPath(org_name);
+    const walletPath = await helper.getWalletPath(orgName);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
@@ -37,11 +37,13 @@ const invokeTransaction = async (
       console.log(
         `An identity for the user ${username} does not exist in the wallet, so registering user`
       );
-      await helper.getRegisteredUser(username, org_name, true);
+      await helper.getRegisteredUser(username, orgName, true);
       identity = await wallet.get(username);
-      console.log("Run the registerUser.js application before retrying");
+      console.log("Register first before retrying ");
       return;
     }
+
+    //if (orgName != "")
 
     const connectOptions = {
       wallet,
@@ -62,6 +64,7 @@ const invokeTransaction = async (
     // Multiple smartcontract in one chaincode
     let result;
     let message;
+
 
     switch (fcn) {
       case "CreateCar":
@@ -121,9 +124,18 @@ const invokeTransaction = async (
           args[0],
           args[1]
         );
+	      var data = JSON.parse(result.toString())
         console.log(result.toString());
-        result = { txid: result.toString() };
+        result = { bawang: data };
         break;
+      case "ConfirmTrxByID":
+          result = await contract.submitTransaction(
+            "BawangContract:" + fcn,
+            args[0]
+          );
+          console.log(result.toString());
+          result = { txid: result.toString() };
+          break;
       case "CreateDocument":
         result = await contract.submitTransaction(
           "DocumentContract:" + fcn,
@@ -132,6 +144,7 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
+
       case "GetDocumentUsingCarContract":
         // result = await contract.submitTransaction('SmartContract:'+fcn, args[0]);
         result = await contract.submitTransaction(fcn, args[0]);
