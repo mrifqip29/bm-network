@@ -13,6 +13,14 @@ logger.level = "debug";
 
 app.set("secret", process.env.JWT_SECRET);
 
+function getErrorMessage(field) {
+  var response = {
+    success: false,
+    message: field + " field is missing or Invalid in the request",
+  };
+  return response;
+}
+
 exports.Register = async (req, res) => {
     var noHP = req.body.noHP;
     var nama = req.body.nama;
@@ -73,7 +81,7 @@ exports.Register = async (req, res) => {
         orgName
       );
       response.token = token;
-      res.status(200).json({message: response, data: mongoRes});
+      res.status(201).json({message: response, data: mongoRes});
     } else {
       logger.debug(
         "Failed to register the username %s for organization %s with::%s",
@@ -81,7 +89,7 @@ exports.Register = async (req, res) => {
         orgName,
         response
       );
-      res.status(500).json({ success: false, message: response});
+      res.status(400).json({ message: response});
     }
 }
 
@@ -124,6 +132,7 @@ exports.Login = async (req, res) => {
           .cookie("jwt", token)
           .set("Authorization", "Bearer " + token)
           .json({
+            success: true,
             message: `${userDB.username} successfully login`,
             token: token,
             user: userDB,
@@ -134,8 +143,7 @@ exports.Login = async (req, res) => {
         });
       }
     } else {
-      res.json({
-        success: false,
+      res.status(404).json({
         message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
       });
     }

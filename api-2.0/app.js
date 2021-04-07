@@ -17,6 +17,7 @@ const constants = require("./config/constants.json");
 const mongoose = require("mongoose");
 
 const RouteUser = require("./routes/user");
+const RouteSC = require("./routes/sc");
 
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
@@ -30,7 +31,6 @@ mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    //useFindAndModify: false,
     useCreateIndex: true,
   })
   .then((res) => {
@@ -43,66 +43,62 @@ mongoose
 app.options("*", cors());
 app.use(cors());
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    extended: false,
-  })
-);
+// app.use(
+//   bodyParser.urlencoded({
+//     extended: false,
+//   })
+// );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 // set secret variable
 app.set("secret", process.env.JWT_SECRET);
-app.use(
-  expressJWT({
-    secret: process.env.JWT_SECRET,
-  }).unless({
-    path: ["/user", "/login", "/register"],
-  })
-);
-app.use(bearerToken());
+
+app.get("/", (req, res) => {
+  res.send("Backend Sistem CRUD Blockchain");
+});
+
+// app.use(
+//   expressJWT({
+//     secret: process.env.JWT_SECRET,
+//   }).unless({
+//     path: ["/user", "/login", "/register", "/query"],
+//   })
+// );
+
+//app.use(bearerToken());
+
+
 
 logger.level = "debug";
 
-app.use((req, res, next) => {
-  logger.debug("New req for %s", req.originalUrl);
-  if (
-    req.originalUrl.indexOf("/user") >= 0 ||
-    req.originalUrl.indexOf("/login") >= 0 ||
-    req.originalUrl.indexOf("/register") >= 0
-  ) {
-    return next();
-  }
-  var token = req.token;
-  jwt.verify(token, app.get("secret"), (err, decoded) => {
-    if (err) {
-      console.log(`Error ================:${err}`);
-      res.send({
-        success: false,
-        message:
-          "Failed to authenticate token. Make sure to include the " +
-          "token returned from /users call in the authorization header " +
-          " as a Bearer token",
-      });
-      return;
-    } else {
-      req.username = decoded.username;
-      req.orgname = decoded.orgName;
-      logger.debug(
-        util.format(
-          "Decoded from JWT token: username - %s, orgname - %s",
-          decoded.username,
-          decoded.orgName
-        )
-      );
-      return next();
-    }
-  });
+// app.use((req, res, next) => {
+//   logger.debug("New req for %s", req.originalUrl);
+//   if (
+//     req.originalUrl.indexOf("/user") >= 0 ||
+//     req.originalUrl.indexOf("/login") >= 0 ||
+//     req.originalUrl.indexOf("/register") >= 0 ||
+//     req.originalUrl.indexOf("/query") >= 0
+//   ) {
+//     return next();
+//   }
+// });
+
+// var server = http.createServer(app).listen(port, function () {
+//   console.log(`Server started on ${port}`);
+// });
+
+// logger.info("****************** SERVER STARTED ************************");
+// logger.info("***************  http://%s:%s  ******************", host, port);
+// server.timeout = 240000;
+
+app.listen(port, (req, res) => {
+  console.log(`server run at port ${process.env.PORT}`);
 });
 
-var server = http.createServer(app).listen(port, function () {
-  console.log(`Server started on ${port}`);
-});
-logger.info("****************** SERVER STARTED ************************");
-logger.info("***************  http://%s:%s  ******************", host, port);
-server.timeout = 240000;
 
 function getErrorMessage(field) {
   var response = {
@@ -112,269 +108,217 @@ function getErrorMessage(field) {
   return response;
 }
 
-app.use("/", RouteUser);
+app.use('/', RouteUser);
+app.use('/sc', RouteSC);
 
-// Register and enroll user
-// app.post("/register", async function (req, res) {
-//   var noHP = req.body.noHP;
-//   var nama = req.body.nama;
-
-//   var username = req.body.username;
-//   var password = req.body.password;
-//   var orgName = req.body.orgName;
-
-//   logger.debug("End point : /users");
-//   logger.debug("Request body : " + req.body);
-
-//   if (!username) {
-//     res.json(getErrorMessage("'username'"));
-//     return;
-//   }
-//   if (!password) {
-//     res.json(getErrorMessage("'password'"));
-//     return;
-//   }
-//   if (!nama) {
-//     res.json(getErrorMessage("'nama'"));
-//     return;
-//   }
-//   if (!noHP) {
-//     res.json(getErrorMessage("'noHP'"));
-//     return;
-//   }
-//   if (!orgName) {
-//     res.json(getErrorMessage("'orgName'"));
-//     return;
-//   }
-
-//   var token = jwt.sign(
-//     {
-//       exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
-//       username: username,
-//       orgName: orgName,
-//     },
-//     app.get("secret")
-//   );
-
-//   // wallet input
-//   let response = await helper.getRegisteredUser(username, orgName, true);
-
-//   logger.debug(
-//     "-- returned from registering the username %s for organization %s",
-//     username,
-//     orgName
-//   );
-
-//   // mongo input
-//   let mongoRes = await helper.registerUserMongo(req, res);
-
-//   if (response && typeof response !== "string") {
+// app.get("/sc/channels/:channelName/chaincodes/:chaincodeName", async function (req, res) {
+//   console.log(req.params)
+//   console.log(req.query.args)
+//   try {
 //     logger.debug(
-//       "Successfully registered the username %s for organization %s",
-//       username,
-//       orgName
+//       "==================== QUERY BY CHAINCODE =================="
 //     );
-//     response.token = token;
-//     res.status(200).json({message: response, data: mongoRes});
-//   } else {
-//     logger.debug(
-//       "Failed to register the username %s for organization %s with::%s",
-//       username,
-//       orgName,
-//       response
-//     );
-//     res.status(500).json({ success: false, message: response});
-//   }
-// });
 
-// Login and get jwt
-// app.post("/login", async function (req, res) {
-//   var username = req.body.username;
-//   var orgName = req.body.orgName;
+//     var channelName = req.params.channelName;
+//     var chaincodeName = req.params.chaincodeName;
+//     console.log(`chaincode name is :${chaincodeName}`);
+//     let args = req.query.args;
+//     let fcn = req.query.fcn;
+//     let peer = req.query.peer;
 
-//   logger.debug("End point : /users");
-//   logger.debug("User name : " + username);
-//   logger.debug("Org name  : " + orgName);
-//   if (!username) {
-//     res.json(getErrorMessage("'username'"));
-//     return;
-//   }
-//   if (!orgName) {
-//     res.json(getErrorMessage("'orgName'"));
-//     return;
-//   }
+//     logger.debug("channelName : " + channelName);
+//     logger.debug("chaincodeName : " + chaincodeName);
+//     logger.debug("fcn : " + fcn);
+//     logger.debug("args : " + args);
 
-//   var token = jwt.sign(
-//     {
-//       exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
-//       username: username,
-//       orgName: orgName,
-//     },
-//     app.get("secret")
-//   );
-
-//   console.log(token);
-
-//   let isUserRegistered = await helper.isUserRegistered(username, orgName);
-
-//   // TODO: error handling when password is false
-
-//   if (isUserRegistered) {
-//     let userDB = await helper.loginUserMongo(req, res, token);
-//     if (userDB) {
-//       res
-//         .status(200)
-//         .cookie("jwt", token)
-//         .set("Authorization", "Bearer " + token)
-//         .json({
-//           message: `${userDB.username} successfully login`,
-//           token: token,
-//           user: userDB,
-//         });
-//     } else {
-//       res.status(404).json({
-//         message: "Username and password combination does not match",
-//       });
+//     if (!chaincodeName) {
+//       res.json(getErrorMessage("'chaincodeName'"));
+//       return;
 //     }
-//   } else {
-//     res.json({
-//       success: false,
-//       message: `User with username ${username} is not registered with ${orgName}, Please register first.`,
-//     });
+//     if (!channelName) {
+//       res.json(getErrorMessage("'channelName'"));
+//       return;
+//     }
+//     if (!fcn) {
+//       res.json(getErrorMessage("'fcn'"));
+//       return;
+//     }
+//     if (!args) {
+//       res.json(getErrorMessage("'args'"));
+//       return;
+//     }
+//     console.log("args ==========", args);
+//     args = args.replace(/'/g, '"');
+//     logger.debug(`type of ${typeof args}`)
+//     args = JSON.parse(args);
+//     logger.debug(`type of ${typeof args}`)
+//     logger.debug(args);
+
+//     console.log(req)
+
+//     let message = await query.query(
+//       channelName,
+//       chaincodeName,
+//       args,
+//       fcn,
+//       req.username,
+//       req.orgname
+//     );
+
+//     logger.debug(message);
+
+//     const response_payload = {
+//       result: message,
+//       error: null,
+//       errorData: null,
+//     };
+
+//     res.send(response_payload);
+//   } catch (error) {
+//     const response_payload = {
+//       result: null,
+//       error: error.name,
+//       errorData: error.message,
+//     };
+//     res.send(response_payload);
 //   }
 // });
 
-// Invoke transaction on chaincode on target peers
-app.post(
-  "/channels/:channelName/chaincodes/:chaincodeName",
-  async function (req, res) {
-    try {
-      logger.debug(
-        "==================== INVOKE ON CHAINCODE =================="
-      );
-      var peers = req.body.peers;
-      var chaincodeName = req.params.chaincodeName;
-      var channelName = req.params.channelName;
-      var fcn = req.body.fcn;
-      var args = req.body.args;
-      var transient = req.body.transient;
-      console.log(`Transient data is ;${transient}`);
-      logger.debug("channelName  : " + channelName);
-      logger.debug("chaincodeName : " + chaincodeName);
-      logger.debug("fcn  : " + fcn);
-      logger.debug("args  : " + args);
-      if (!chaincodeName) {
-        res.json(getErrorMessage("'chaincodeName'"));
-        return;
-      }
-      if (!channelName) {
-        res.json(getErrorMessage("'channelName'"));
-        return;
-      }
-      if (!fcn) {
-        res.json(getErrorMessage("'fcn'"));
-        return;
-      }
-      if (!args) {
-        res.json(getErrorMessage("'args'"));
-        return;
-      }
+// // Invoke transaction on chaincode on target peers
+// app.post(
+//   "/invoke/:channelName/:chaincodeName",
+//   async function (req, res) {
+//     try {
+//       logger.debug(
+//         "==================== INVOKE ON CHAINCODE =================="
+//       );
+//       var peers = req.body.peers;
+//       var chaincodeName = req.params.chaincodeName;
+//       var channelName = req.params.channelName;
+//       var fcn = req.body.fcn;
+//       var args = req.body.args;
+//       var transient = req.body.transient;
+//       console.log(`Transient data is ;${transient}`);
+//       logger.debug("channelName  : " + channelName);
+//       logger.debug("chaincodeName : " + chaincodeName);
+//       logger.debug("fcn  : " + fcn);
+//       logger.debug("args  : " + args);
+//       if (!chaincodeName) {
+//         res.json(getErrorMessage("'chaincodeName'"));
+//         return;
+//       }
+//       if (!channelName) {
+//         res.json(getErrorMessage("'channelName'"));
+//         return;
+//       }
+//       if (!fcn) {
+//         res.json(getErrorMessage("'fcn'"));
+//         return;
+//       }
+//       if (!args) {
+//         res.json(getErrorMessage("'args'"));
+//         return;
+//       }
 
-      let message = await invoke.invokeTransaction(
-        channelName,
-        chaincodeName,
-        fcn,
-        args,
-        req.username,
-        req.orgname,
-        transient
-      );
-      console.log(`message result is : ${message}`);
+//       let message = await invoke.invokeTransaction(
+//         channelName,
+//         chaincodeName,
+//         fcn,
+//         args,
+//         req.username,
+//         req.orgname,
+//         transient
+//       );
+//       console.log(`message result is : ${message}`);
 
-      const response_payload = {
-        result: message,
-        error: null,
-        errorData: null,
-      };
-      res.send(response_payload);
-    } catch (error) {
-      const response_payload = {
-        result: null,
-        error: error.name,
-        errorData: error.message,
-      };
-      res.send(response_payload);
-    }
-  }
-);
+//       console.log(`username pengirim : ${args.usernamePengirim}`)
 
-app.get(
-  "/channels/:channelName/chaincodes/:chaincodeName",
-  async function (req, res) {
-    try {
-      logger.debug(
-        "==================== QUERY BY CHAINCODE =================="
-      );
+//       const response_payload = {
+//         result: message,
+//         error: null,
+//         errorData: null,
+//       };
+//       res.send(response_payload);
+//     } catch (error) {
+//       const response_payload = {
+//         result: null,
+//         error: error.name,
+//         errorData: error.message,
+//       };
+//       res.send(response_payload);
+//     }
+//   }
+// );
 
-      var channelName = req.params.channelName;
-      var chaincodeName = req.params.chaincodeName;
-      console.log(`chaincode name is :${chaincodeName}`);
-      let args = req.query.args;
-      let fcn = req.query.fcn;
-      let peer = req.query.peer;
+// app.get(
+//   "/sc/channels/:channelName/chaincodes/:chaincodeName",
+//   async function (req, res) {
+//     try {
+//       logger.debug(
+//         "==================== QUERY BY CHAINCODE =================="
+//       );
 
-      logger.debug("channelName : " + channelName);
-      logger.debug("chaincodeName : " + chaincodeName);
-      logger.debug("fcn : " + fcn);
-      logger.debug("args : " + args);
+//       var channelName = req.params.channelName;
+//       var chaincodeName = req.params.chaincodeName;
+//       console.log(`chaincode name is :${chaincodeName}`);
+//       let args = req.query.args;
+//       let fcn = req.query.fcn;
+//       let peer = req.query.peer;
 
-      if (!chaincodeName) {
-        res.json(getErrorMessage("'chaincodeName'"));
-        return;
-      }
-      if (!channelName) {
-        res.json(getErrorMessage("'channelName'"));
-        return;
-      }
-      if (!fcn) {
-        res.json(getErrorMessage("'fcn'"));
-        return;
-      }
-      if (!args) {
-        res.json(getErrorMessage("'args'"));
-        return;
-      }
-      console.log("args==========", args);
-      args = args.replace(/'/g, '"');
-      args = JSON.parse(args);
-      logger.debug(args);
+//       logger.debug("channelName : " + channelName);
+//       logger.debug("chaincodeName : " + chaincodeName);
+//       logger.debug("fcn : " + fcn);
+//       logger.debug("args : " + args);
 
-      let message = await query.query(
-        channelName,
-        chaincodeName,
-        args,
-        fcn,
-        req.username,
-        req.orgname
-      );
+//       if (!chaincodeName) {
+//         res.json(getErrorMessage("'chaincodeName'"));
+//         return;
+//       }
+//       if (!channelName) {
+//         res.json(getErrorMessage("'channelName'"));
+//         return;
+//       }
+//       if (!fcn) {
+//         res.json(getErrorMessage("'fcn'"));
+//         return;
+//       }
+//       if (!args) {
+//         res.json(getErrorMessage("'args'"));
+//         return;
+//       }
+//       console.log("args==========", args);
+//       args = args.replace(/'/g, '"');
+//       args = JSON.parse(args);
+//       logger.debug(args);
 
-      const response_payload = {
-        result: message,
-        error: null,
-        errorData: null,
-      };
+//       let message = await query.query(
+//         channelName,
+//         chaincodeName,
+//         args,
+//         fcn,
+//         req.username,
+//         req.orgname
+//       );
 
-      res.send(response_payload);
-    } catch (error) {
-      const response_payload = {
-        result: null,
-        error: error.name,
-        errorData: error.message,
-      };
-      res.send(response_payload);
-    }
-  }
-);
+//       logger.debug(message);
+
+//       const response_payload = {
+//         result: message,
+//         error: null,
+//         errorData: null,
+//       };
+
+//       res.send(response_payload);
+//     } catch (error) {
+//       const response_payload = {
+//         result: null,
+//         error: error.name,
+//         errorData: error.message,
+//       };
+//       res.send(response_payload);
+//     }
+//   }
+// );
 
 app.get(
   "/qscc/channels/:channelName/chaincodes/:chaincodeName",
