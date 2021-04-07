@@ -119,6 +119,8 @@ services:
       - 5984:5984
     networks:
       - test
+    volumes:
+      - ./couchdb/couchdb0:/opt/couchdb/data
 
   couchdb1:
     container_name: couchdb1
@@ -130,6 +132,8 @@ services:
       - 6984:5984
     networks:
       - test
+    volumes:
+      - ./couchdb/couchdb1:/opt/couchdb/data
 
   couchdb2:
     container_name: couchdb2
@@ -141,6 +145,8 @@ services:
       - 7984:5984
     networks:
       - test
+    volumes:
+      - ./couchdb/couchdb2:/opt/couchdb/data
 
   couchdb3:
     container_name: couchdb3
@@ -152,6 +158,8 @@ services:
       - 8984:5984
     networks:
       - test
+    volumes:
+      - ./couchdb/couchdb3:/opt/couchdb/data
 
   peer0.penangkar.example.com:
     container_name: peer0.penangkar.example.com
@@ -231,6 +239,8 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peer/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto/peer/tls/ca.crt
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peer/msp
+    depends_on:
+      - couchdb1
     ports:
       - 8051:8051
     volumes:
