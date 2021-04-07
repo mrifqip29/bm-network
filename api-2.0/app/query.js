@@ -6,22 +6,42 @@ const logger = log4js.getLogger("BasicNetwork");
 const util = require("util");
 
 const helper = require("./helper");
-const query = async (
+const queryTransaction = async (
   channelName,
   chaincodeName,
   args,
   fcn,
   username,
-  org_name
+  orgName
 ) => {
   try {
+    let random = Math.floor(Math.random() * 4)
+    switch (random) {
+      case 0:
+        orgName = "Penangkar"
+        break;
+      case 1:
+        orgName = "Petani"
+        break;
+      case 2:
+        orgName = "Pengumpul"
+        break;
+      case 3:
+        orgName = "Pedagang"
+        break;
+      default:
+        break;
+    }
+  
+    username = "admin"
+
     // load the network configuration
     // const ccpPath = path.resolve(__dirname, '..', 'config', 'connection-org1.json');
     // const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
-    const ccp = await helper.getCCP(org_name); //JSON.parse(ccpJSON);
+    const ccp = await helper.getCCP(orgName); //JSON.parse(ccpJSON);
 
     // Create a new file system based wallet for managing identities.
-    const walletPath = await helper.getWalletPath(org_name); //.join(process.cwd(), 'wallet');
+    const walletPath = await helper.getWalletPath(orgName); //.join(process.cwd(), 'wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
@@ -31,9 +51,9 @@ const query = async (
       console.log(
         `An identity for the user ${username} does not exist in the wallet, so registering user`
       );
-      await helper.getRegisteredUser(username, org_name, true);
+      await helper.getRegisteredUser(username, orgName, true);
       identity = await wallet.get(username);
-      console.log("Run the registerUser.js application before retrying");
+      console.log("Register first before retrying");
       return;
     }
 
@@ -55,7 +75,6 @@ const query = async (
     switch (fcn) {
       case "value":
         break;
-
       case "GetDocumentUsingCarContract":
         console.log("=============");
         result = await contract.evaluateTransaction(
@@ -67,6 +86,13 @@ const query = async (
         console.log("=============");
         result = await contract.evaluateTransaction(
           "BawangContract:" + fcn,
+          args[0]
+        );
+        break;
+      case "GetUserByID":
+        console.log("=============");
+        result = await contract.evaluateTransaction(
+          "UserContract:" + fcn,
           args[0]
         );
         break;
@@ -84,16 +110,14 @@ const query = async (
           args[0]
         );
         break;
-      case "GetCarById":
-        console.log("=============");
-        result = await contract.evaluateTransaction(
-          "SmartContract:" + fcn,
-          args[0]
-        );
-        // console.log(result.toString())
-        // result = {txid: result.toString()}
-        break;
-
+        // case "CreateUser":
+        //   result = await contract.submitTransaction(
+        //     "UserContract:" + fcn,
+        //     args[0]
+        //   );
+        //   console.log(result.toString());
+        //   result = { txid: result.toString() };
+        //   break;
       default:
         break;
     }
@@ -120,4 +144,4 @@ const query = async (
   }
 };
 
-exports.query = query;
+exports.queryTransaction = queryTransaction;
