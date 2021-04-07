@@ -108,9 +108,10 @@ dist
 
 artifacts/channel/mychannel.tx
 genesis.block
-artifacts/channel/Org1MSPanchors.tx
-artifacts/channel/Org2MSPanchors.tx
-artifacts/channel/Org3MSPanchors.tx
+artifacts/channel/PenangkarMSPanchors.tx
+artifacts/channel/PetaniMSPanchors.tx
+artifacts/channel/PengumpulMSPanchors.tx
+artifacts/channel/PedagangMSPanchors.tx
 artifacts/channel/crypto-config
 fabric-client-kv-org1
 /package-lock.json
@@ -118,12 +119,12 @@ crypto/*
 
 vendor
 
-
 artifacts/src/github.com/golang
 artifacts/src/github.com/pkg
 artifacts/src/github.com/hyperledger
 artifacts/src/github.com/fabcar/go/vendor
 artifacts/src/github.com/fabcar/go/go.sum
+artifacts/couchdb
 crypto/fabric-client-kv-org1
 fabcar.tar.gz
 test_cc.tar.gz
@@ -153,8 +154,10 @@ config_update_in_envelope.pb
 config.pb
 org4consenter.json
 addOrg3/scripts/channel-artifacts/mychannel.block
-api-2.0/org1-wallet
-api-2.0/org2-wallet
+api-2.0/penangkar-wallet
+api-2.0/petani-wallet
+api-2.0/pengumpul-wallet
+api-2.0/pedagang-wallet
 artifacts/channel/create-certificate-with-ca/crypto-config-ca
 artifacts/channel/create-certificate-with-ca/fabric-ca
 artifacts/channel/crypto-config_1
