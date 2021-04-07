@@ -363,7 +363,7 @@ const registerAndGetSecret = async (username, userOrg) => {
 };
 
 const registerUserMongo = async (req, res) => {
-  const {
+  var {
     noHP,
     nama,
     username,
@@ -390,8 +390,20 @@ const registerUserMongo = async (req, res) => {
 
   const hashed = await bcryptjs.hash(password, 10);
 
+  if (!alamatToko) {
+    alamatToko = "Tidak memiliki toko"
+  }
+
+  if (!luasLahanHa) {
+    luasLahanHa = 0
+  }
+	
   if (!kelompokTani) {
-    kelompokTani = "";
+    kelompokTani = "Tidak tergabung dalam kelompok tani";
+  }
+
+  if (!alamatLahan) {
+    alamatLahan = "Tidak memiliki lahan"	
   }
 
   //let userID = orgName + Math.random().toString(27).substring(4, 8);
@@ -452,10 +464,6 @@ const loginUserMongo = async (req, res, token) => {
     return false;
   }
 };
-
-const authUserMongo = async (req, res, token) => {
-
-}
 
 exports.getRegisteredUser = getRegisteredUser;
 
