@@ -75,7 +75,7 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
-      case "CreateBawang":
+      case "CreateBenih":
         result = await contract.submitTransaction(
           "BawangContract:" + fcn,
           args[0]
@@ -83,6 +83,15 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
+      case "CreateBawang":
+          result = await contract.submitTransaction(
+            "BawangContract:" + fcn,
+            args[0],
+            args[1]
+          );
+          console.log(result.toString());
+          result = { txid: result.toString() };
+          break;
       case "CreateUser":
         result = await contract.submitTransaction(
           "UserContract:" + fcn,
