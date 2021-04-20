@@ -84,14 +84,24 @@ exports.Query = async (req, res) => {
       );
 
       logger.debug(message);
+      // TODO do error handling here, meesage.contain error --> 
+      if(typeof message == 'string'){
+        const response_payload = {
+          result: message,
+          error: "Error in chaincode",
+        };
+  
+        res.status(500).send(response_payload);
+      } else if (typeof message == 'object') {
+        const response_payload = {
+          result: message,
+          error: null,
+          errorData: null,
+        };
+  
+        res.status(200).send(response_payload);
+      }
 
-      const response_payload = {
-        result: message,
-        error: null,
-        errorData: null,
-      };
-
-      res.status(200).send(response_payload);
     } catch (error) {
       const response_payload = {
         result: null,
@@ -148,13 +158,32 @@ exports.Invoke = async (req, res) => {
     console.log(`message result is :`);
 
     console.log(message)
+    //console.log(`${typeof message}`)
 
-    const response_payload = {
-      result: message,
-      error: null,
-      errorData: null,
-    };
-    res.status(200).send(response_payload);
+    if(typeof message == 'string'){
+      const response_payload = {
+        result: message,
+        error: "Error in chaincode",
+      };
+
+      res.status(500).send(response_payload);
+    } else if (typeof message == 'object') {
+      const response_payload = {
+        result: message,
+        error: null,
+        errorData: null,
+      };
+
+      res.status(200).send(response_payload);
+    }
+
+    // const response_payload = {
+    //   result: message,
+    //   error: null,
+    //   errorData: null,
+    // };
+    // res.status(200).send(response_payload);
+
   } catch (error) {
     const response_payload = {
       result: null,

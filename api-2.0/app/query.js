@@ -73,8 +73,6 @@ const queryTransaction = async (
     let result;
 
     switch (fcn) {
-      case "value":
-        break;
       case "GetDocumentUsingCarContract":
         console.log("=============");
         result = await contract.evaluateTransaction(
