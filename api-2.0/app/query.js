@@ -129,9 +129,13 @@ const queryTransaction = async (
     //     // return result
 
     // }
-    console.log(result);
+   
+    console.log(`Buffer result: ${result}`);
     console.log(
-      `Transaction has been evaluated, result is: ${result.toString()}`
+      `Transaction has been evaluated, result to string is to: ${result.toString()}`
+    );
+    console.log(
+      `Transaction has been evaluated, result is: ${result}`
     );
 
     result = JSON.parse(result.toString());

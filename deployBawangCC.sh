@@ -57,8 +57,8 @@ presetup() {
 
 CHANNEL_NAME="mychannel"
 CC_RUNTIME_LANGUAGE="golang"
-VERSION="3"
-SEQUENCE="11"
+VERSION="3.8"
+SEQUENCE="28"
 CC_SRC_PATH="./artifacts/src/github.com/bawangmerah/go"
 CC_NAME="bawangmerah_cc"
 
@@ -132,7 +132,7 @@ checkCommitReadynessPenangkar() {
     setGlobalsForPeer0Penangkar
     peer lifecycle chaincode checkcommitreadiness \
         --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
-        --sequence ${VERSION} --output json --init-required
+        --sequence ${SEQUENCE} --output json --init-required
     echo "===================== checking commit readyness from penangkar ===================== "
 }
 
@@ -158,7 +158,7 @@ checkCommitReadynessPetani() {
     setGlobalsForPeer0Petani
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
         --peerAddresses localhost:8051 --tlsRootCertFiles $PEER0_PETANI_CA \
-        --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
+        --name ${CC_NAME} --version ${VERSION} --sequence ${SEQUENCE} --output json --init-required
     echo "===================== checking commit readyness from petani ===================== "
 }
 
@@ -184,7 +184,7 @@ checkCommitReadynessPengumpul() {
     setGlobalsForPeer0Pengumpul
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
         --peerAddresses localhost:10051 --tlsRootCertFiles $PEER0_PENGUMPUL_CA \
-        --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
+        --name ${CC_NAME} --version ${VERSION} --sequence ${SEQUENCE} --output json --init-required
     echo "===================== checking commit readyness from pengumpul ===================== "
 }
 
@@ -210,7 +210,7 @@ checkCommitReadynessPedagang() {
     setGlobalsForPeer0Pedagang
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
         --peerAddresses localhost:11051 --tlsRootCertFiles $PEER0_PEDAGANG_CA \
-        --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
+        --name ${CC_NAME} --version ${VERSION} --sequence ${SEQUENCE} --output json --init-required
     echo "===================== checking commit readyness from pedagang ===================== "
 }
 

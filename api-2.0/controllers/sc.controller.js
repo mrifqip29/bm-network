@@ -60,19 +60,7 @@ exports.Query = async (req, res) => {
       console.log(`type of argument ${typeof args}`)
       args = args.replace(/'/g, '"');
       args = JSON.parse(args);
-
-      // logger.debug(channelName);
-      // console.log(`type of channelName ${typeof channelName}`)
-      // logger.debug(chaincodeName);
-      // console.log(`type of chaincodeName ${typeof chaincodeName}`)
-      // logger.debug(args);
-      // console.log(`type of args ${typeof args}`)
-      // logger.debug(fcn);
-      // console.log(`type of fcn ${typeof fcn}`)
-      // logger.debug( req.username);
-      // console.log(`type of req.username ${typeof   req.username}`)
-      // logger.debug( req.orgname);
-      // console.log(`type of  req.orgname ${typeof  req.orgname}`)
+      console.log("args parse ==========", args);
 
       let message = await query.queryTransaction(
         channelName,
@@ -85,7 +73,7 @@ exports.Query = async (req, res) => {
 
       logger.debug(message);
       // TODO do error handling here, meesage.contain error --> 
-      if(typeof message == 'string'){
+      if (typeof message == 'string'){
         const response_payload = {
           result: message,
           error: "Error in chaincode",
@@ -93,15 +81,23 @@ exports.Query = async (req, res) => {
   
         res.status(500).send(response_payload);
       } else if (typeof message == 'object') {
-        const response_payload = {
-          result: message,
-          error: null,
-          errorData: null,
-        };
-  
-        res.status(200).send(response_payload);
+        if (message.length == 0) {
+          const response_payload = {
+            result: message,
+            error: "404",
+            errorData: "Data not found",
+          };
+    
+          res.status(404).send(response_payload);
+        } else {
+          const response_payload = {
+            result: message,
+            error: null,
+            errorData: null,
+          };
+          res.status(200).send(response_payload);
+        }
       }
-
     } catch (error) {
       const response_payload = {
         result: null,

@@ -127,6 +127,16 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
+      case "AddBenihKuantitasByID":
+        result = await contract.submitTransaction(
+          "BawangContract:" + fcn,
+          args[0],
+          args[1]
+        );
+	      var data = JSON.parse(result.toString())
+        console.log(result.toString());
+        result = { bawang: data };
+        break;
       case "AddBawangKuantitasByID":
         result = await contract.submitTransaction(
           "BawangContract:" + fcn,
