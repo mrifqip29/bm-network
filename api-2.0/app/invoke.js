@@ -67,14 +67,6 @@ const invokeTransaction = async (
 
 
     switch (fcn) {
-      case "CreateCar":
-        result = await contract.submitTransaction(
-          "SmartContract:" + fcn,
-          args[0]
-        );
-        console.log(result.toString());
-        result = { txid: result.toString() };
-        break;
       case "CreateBenih":
         result = await contract.submitTransaction(
           "BawangContract:" + fcn,
@@ -83,7 +75,16 @@ const invokeTransaction = async (
         console.log(result.toString());
         result = { txid: result.toString() };
         break;
-      case "CreateBawang":
+      case "PlantBenih":
+          result = await contract.submitTransaction(
+            "BawangContract:" + fcn,
+            args[0],
+            args[1]
+          );
+          console.log(result.toString());
+          result = { txid: result.toString() };
+          break;
+      case "ConvertBawang":
           result = await contract.submitTransaction(
             "BawangContract:" + fcn,
             args[0],
