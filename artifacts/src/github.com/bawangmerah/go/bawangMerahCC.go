@@ -1,4 +1,4 @@
-package main
+package bmcc
 
 import (
 	"bytes"
@@ -86,6 +86,26 @@ type Bawang struct {
 	IsAsset 	bool `json:"isAsset"`
 	IsConfirmed bool `json:"isConfirmed"`
 	IsEmpty		bool `json:"isEmpty"`
+	IsRejected 	bool `json:"isRejected"`
+}
+
+// InitLedger adds a base set of cars to the ledger
+func (s *BawangContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	// bawangs := Bawang
+	// Car{Make: "Toyota", Model: "Prius", Colour: "blue", Owner: "Tomoko"},
+	// Car{Make: "Ford", Model: "Mustang", Colour: "red", Owner: "Brad"}
+	// }
+
+	// for i, bawang := range bawangs {
+	// 	bawangAsBytes, _ := json.Marshal(bawang)
+	// 	err := ctx.GetStub().PutState("Bawang"+strconv.Itoa(i), bawangAsBytes)
+
+	// 	if err != nil {
+	// 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
+	// 	}
+	// }
+
+	return nil
 }
 
 // Creating benih asset and insert it on blockchain
@@ -107,6 +127,8 @@ func (s *BawangContract) CreateBenih(ctx contractapi.TransactionContextInterface
 	bawang.IsAsset = true
 
 	bawang.IsConfirmed = false
+
+	bawang.IsRejected = false
 
 	// insert UmurBenih, UmurPanen, LamaPenyimpanan, Varietas, KuantitasBenihKg
 	err := json.Unmarshal([]byte(bawangData), &bawang)
@@ -290,7 +312,7 @@ func (s *BawangContract) PlantBenih(ctx contractapi.TransactionContextInterface,
 
 // Convert benih that has been planted into bawang asset 
 // Add other bawang field
-func (s *BawangContract) ConvertBawang(ctx contractapi.TransactionContextInterface, bawangData, bawangID string) (string, error) {
+func (s *BawangContract) HarvestBawang(ctx contractapi.TransactionContextInterface, bawangData, bawangID string) (string, error) {
 	
 	if len(bawangData) == 0 {
 		return "", fmt.Errorf("Please pass the correct bawang data")
@@ -474,7 +496,7 @@ func (s *BawangContract) UpdateBawangTrxByPengumpul(ctx contractapi.TransactionC
 	bawangNew.TanggalTanam = bawangPrev.TanggalTanam
 	bawangNew.TanggalPanen = bawangPrev.TanggalPanen
 
-	// insert TanggalMasuk, TeknikSorting, MetodePengemasan, UsernamePengirim, UsernamePenerima, AlamatPengirim, AlamatPenerima, KuantitasBawangKg, HargaBawangPerKg
+	// insert TanggalMasuk, TeknikSorting, MetodePengemasan, UsernamePengirim, UsernamePenerima, KuantitasBawangKg, HargaBawangPerKg
 	err = json.Unmarshal([]byte(bawangData), &bawangNew)
 
 	if err != nil {
@@ -717,6 +739,63 @@ func (s *BawangContract) ConfirmTrxByID(ctx contractapi.TransactionContextInterf
 
 	// Update the state
 	return bawangID, ctx.GetStub().PutState(bawang.ID, bawangAsBytes)
+}
+
+// Set isRejected to true and retrieve the asset quantity
+func (s *BawangContract) RejectTrxByID(ctx contractapi.TransactionContextInterface, bawangIDPrev, bawangIDReject string, kuantitasPrev float64) (string, error) {
+	
+	// Create new bawang object for previous bawang
+	if len(bawangIDPrev) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	bawangAsBytes, err := ctx.GetStub().GetState(bawangIDPrev)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", bawangIDPrev)
+	}
+	
+	bawangPrev := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawangPrev)
+
+	if len(bawangIDReject) == 0 {
+		return "", fmt.Errorf("Please pass the correct bawang id")
+	}
+
+	bawangAsBytes, err = ctx.GetStub().GetState(bawangIDReject)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
+	}
+
+	if bawangAsBytes == nil {
+		return "", fmt.Errorf("%s does not exist", bawangIDReject)
+	}
+
+	bawangReject := new(Bawang)
+	_ = json.Unmarshal(bawangAsBytes, bawangReject)
+
+	// Change the confirmed status
+	bawangReject.IsRejected = true
+
+	if bawangPrev.BenihAsetID != "" && bawangPrev.BawangAsetID == "" {
+		bawangPrev.KuantitasBenihKg += kuantitasPrev
+	} else {
+		bawangPrev.KuantitasBawangKg += kuantitasPrev
+	}
+
+	bawangAsBytes, err = json.Marshal(bawangReject)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed while marshling bawang. %s", err.Error())
+	}
+
+	// Update the state
+	return bawangIDReject, ctx.GetStub().PutState(bawangReject.ID, bawangAsBytes)
 }
 
 // Get bawang object by ID
