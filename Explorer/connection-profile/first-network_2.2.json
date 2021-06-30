@@ -1,6 +1,6 @@
 {
 	"name": "first-network",
-	"version": "1.0.0",
+	"version": "1.2.0",
 	"license": "Apache-2.0",
 	"client": {
 		"tlsEnable": true,
@@ -18,9 +18,9 @@
 		"connection": {
 			"timeout": {
 				"peer": {
-					"endorser": "300"
+					"endorser": "6000"
 				},
-				"orderer": "300"
+				"orderer": "6000"
 			}
 		}
 	},
@@ -44,26 +44,97 @@
 		"PenangkarMSP": {
 			"mspid": "PenangkarMSP",
 			"adminPrivateKey": {
-				"path": "/etc/data/peerOrganizations/penangkar.example.com/users/Admin@penangkar.example.com/msp/keystore/priv_sk"
+				"path": "/tmp/crypto/peerOrganizations/penangkar.example.com/users/Admin@penangkar.example.com/msp/keystore/priv_sk"
 			},
 			"peers": [
 				"peer0.penangkar.example.com"
 			],
 			"signedCert": {
-				"path": "/etc/data/peerOrganizations/penangkar.example.com/users/Admin@penangkar.example.com/msp/signcerts/cert.pem"
+				"path": "/tmp/crypto/peerOrganizations/penangkar.example.com/users/Admin@penangkar.example.com/msp/signcerts/cert.pem"
+			}
+		},
+		"PetaniMSP": {
+			"mspid": "PetaniMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/petani.example.com/users/Admin@petani.example.com/msp/keystore/19e099e4797c020dc7fed77e05c448b46b608abf7f9b79b1fcf8474730ccb278_sk"
+			},
+			"peers": [
+				"peer0.petani.example.com"
+			],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/petani.example.com/users/Admin@petani.example.com/msp/signcerts/cert.pem"
+			}
+		},
+		"PengumpulMSP": {
+			"mspid": "PengumpulMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/pengumpul.example.com/users/Admin@pengumpul.example.com/msp/keystore/dec263b71300c29354b7f1790ee9ca2adab6c58222e993d9c47617cf6643596a_sk"
+			},
+			"peers": [
+				"peer0.pengumpul.example.com"
+			],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/pengumpul.example.com/users/Admin@pengumpul.example.com/msp/signcerts/cert.pem"
+			}
+		},
+		"PedagangMSP": {
+			"mspid": "PedagangMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/pedagang.example.com/users/Admin@pedagang.example.com/msp/keystore/5d3a435026e29a034f5598ae18be56c79628eda457c182c813f1d3bdb378540c_sk"
+			},
+			"peers": [
+				"peer0.pedagang.example.com"
+			],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/pedagang.example.com/users/Admin@pedagang.example.com/msp/signcerts/cert.pem"
 			}
 		}
 	},
 	"peers": {
 		"peer0.penangkar.example.com": {
 			"tlsCACerts": {
-				"path": "/etc/data/peerOrganizations/penangkar.example.com/peers/peer0.penangkar.example.com/tls/ca.crt"
+				"path": "/tmp/crypto/peerOrganizations/penangkar.example.com/peers/peer0.penangkar.example.com/tls/ca.crt"
 			},
 			"url": "grpcs://peer0.penangkar.example.com:7051",
 			"eventUrl": "grpcs://peer0.penangkar.example.com:7053",
 			"grpcOptions": {
 				"ssl-target-name-override": "peer0.penangkar.example.com"
 			}
+		},
+		"peer0.petani.example.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/petani.example.com/peers/peer0.petani.example.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.petani.example.com:8051",
+			"eventUrl": "grpcs://peer0.petani.example.com:8053",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.petani.example.com"
+			}
+		},
+		"peer0.pengumpul.example.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/pengumpul.example.com/peers/peer0.pengumpul.example.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.pengumpul.example.com:10051",
+			"eventUrl": "grpcs://peer0.pengumpul.example.com:10053",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.pengumpul.example.com"
+			}
+		},
+		"peer0.pedagang.example.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/pedagang.example.com/peers/peer0.pedagang.example.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.pedagang.example.com:11051",
+			"eventUrl": "grpcs://peer0.pedagang.example.com:11053",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.pedagang.example.com"
+			}
+		}
+	},
+	"orderers": {
+		"orderer.example.com": {
+			"url": "grpcs://localhost:7050"
 		}
 	}
 }
