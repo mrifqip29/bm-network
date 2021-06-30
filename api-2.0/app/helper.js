@@ -57,13 +57,13 @@ const getCaUrl = async (org, ccp) => {
 
 const getWalletPath = async (org) => {
   let walletPath;
-  if (org == "Penangkar") {
+  if (org == "Penangkar" || org == "penangkar") {
     walletPath = path.join(process.cwd(), "penangkar-wallet");
-  } else if (org == "Petani") {
+  } else if (org == "Petani" || org == "petani") {
     walletPath = path.join(process.cwd(), "petani-wallet");
-  } else if (org == "Pengumpul") {
+  } else if (org == "Pengumpul" || org == "pengumpul") {
     walletPath = path.join(process.cwd(), "pengumpul-wallet");
-  } else if (org == "Pedagang") {
+  } else if (org == "Pedagang" || org == "pengumpul") {
     walletPath = path.join(process.cwd(), "pedagang-wallet");
   } else return null;
   return walletPath;

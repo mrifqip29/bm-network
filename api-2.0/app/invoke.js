@@ -84,7 +84,7 @@ const invokeTransaction = async (
           console.log(result.toString());
           result = { txid: result.toString() };
           break;
-      case "ConvertBawang":
+      case "HarvestBawang":
           result = await contract.submitTransaction(
             "BawangContract:" + fcn,
             args[0],
@@ -156,23 +156,16 @@ const invokeTransaction = async (
           console.log(result.toString());
           result = { txid: result.toString() };
           break;
-      case "CreateDocument":
-        result = await contract.submitTransaction(
-          "DocumentContract:" + fcn,
-          args[0]
-        );
-        console.log(result.toString());
-        result = { txid: result.toString() };
-        break;
-
-      case "GetDocumentUsingCarContract":
-        // result = await contract.submitTransaction('SmartContract:'+fcn, args[0]);
-        result = await contract.submitTransaction(fcn, args[0]);
-        // console.log("================>>>>",result)
-        // console.log(result.toString())
-        // result = {txid: result.toString()}
-        // result = JSON.parse(result);
-        break;
+      case "RejectTrxByID":
+          result = await contract.submitTransaction(
+            "BawangContract:" + fcn,
+            args[0],
+            args[1],
+            args[2]
+          );
+          console.log(result.toString());
+          result = { txid: result.toString() };
+          break;
 
       default:
         break;

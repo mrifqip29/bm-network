@@ -22,7 +22,6 @@ function getErrorMessage(field) {
 }
 
 exports.Register = async (req, res) => {
-    var noHP = req.body.noHP;
     var nama = req.body.nama;
   
     var username = req.body.username;
@@ -42,10 +41,6 @@ exports.Register = async (req, res) => {
     }
     if (!nama) {
       res.json(getErrorMessage("'nama'"));
-      return;
-    }
-    if (!noHP) {
-      res.json(getErrorMessage("'noHP'"));
       return;
     }
     if (!orgName) {
