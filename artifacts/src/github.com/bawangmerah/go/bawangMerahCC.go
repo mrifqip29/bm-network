@@ -1,4 +1,4 @@
-package bmcc
+package main
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"log"
+	"math"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -39,9 +40,9 @@ type User struct {
 	CreatedAt int64 `json:"createdAt"`
 }
 
-// Bawang object struct
+// Bawang struct
 type Bawang struct {
-	ID 				string `json:"id"` // use this for query
+	ID 				string `json:"id"` // for query
 	BenihAsetID 	string `json:"benihAsetID"`
 	BawangAsetID 	string `json:"bawangAsetID"`
 
@@ -61,11 +62,13 @@ type Bawang struct {
 	CreatedAt 	int64	`json:"createdAt"`
 
 	// Unique Value
+	// From Penangkar
 	UmurBenih       string `json:"umurBenih"`
 	UmurPanen       string `json:"umurPanen"`
 	LamaPenyimpanan string `json:"lamaPenyimpanan"`
 	Varietas        string `json:"varietas"`
 
+	// From Petani
 	UkuranUmbi    	string 	`json:"ukuranUmbi"`
 	KadarAirPersen 	float64 `json:"kadarAirPersen"`
 	Pupuk         	string 	`json:"pupuk"`
@@ -75,6 +78,7 @@ type Bawang struct {
 	TanggalTanam 	int64 	`json:"tanggalTanam"`
 	TanggalPanen 	int64 	`json:"tanggalPanen"`
 
+	// From Pengumpul
 	TanggalMasuk     int64 `json:"tanggalMasuk"`
 	TeknikSorting    string `json:"teknikSorting"`
 	MetodePengemasan string `json:"metodePengemasan"`
@@ -87,25 +91,8 @@ type Bawang struct {
 	IsConfirmed bool `json:"isConfirmed"`
 	IsEmpty		bool `json:"isEmpty"`
 	IsRejected 	bool `json:"isRejected"`
-}
 
-// InitLedger adds a base set of cars to the ledger
-func (s *BawangContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	// bawangs := Bawang
-	// Car{Make: "Toyota", Model: "Prius", Colour: "blue", Owner: "Tomoko"},
-	// Car{Make: "Ford", Model: "Mustang", Colour: "red", Owner: "Brad"}
-	// }
-
-	// for i, bawang := range bawangs {
-	// 	bawangAsBytes, _ := json.Marshal(bawang)
-	// 	err := ctx.GetStub().PutState("Bawang"+strconv.Itoa(i), bawangAsBytes)
-
-	// 	if err != nil {
-	// 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
-	// 	}
-	// }
-
-	return nil
+	RejectReason	string	`json:"rejectReason"`
 }
 
 // Creating benih asset and insert it on blockchain
@@ -553,6 +540,7 @@ func (s *BawangContract) AddBenihKuantitasByID(ctx contractapi.TransactionContex
 
 	// Add benih quantity
 	bawang.KuantitasBenihKg += quantity
+	bawang.KuantitasBenihKg = math.Round(bawang.KuantitasBenihKg*100)/100
 
 	if bawang.KuantitasBenihKg > 0 {
 		bawang.IsEmpty = false
@@ -657,6 +645,8 @@ func (s *BawangContract) updateKuantitasBenihByID(ctx contractapi.TransactionCon
 	_ = json.Unmarshal(bawangAsBytes, bawang)
 
 	bawang.KuantitasBenihKg -= kuantitasBenihNext
+	bawang.KuantitasBenihKg = math.Round(bawang.KuantitasBenihKg*100)/100
+
 
 	if bawang.KuantitasBenihKg == 0 {
 		bawang.IsEmpty = true
@@ -688,6 +678,8 @@ func (s *BawangContract) updateKuantitasBawangByID(ctx contractapi.TransactionCo
 	_ = json.Unmarshal(bawangAsBytes, bawang)
 
 	bawang.KuantitasBawangKg -= kuantitasBawangNext
+	bawang.KuantitasBawangKg = math.Round(bawang.KuantitasBawangKg*100)/100
+
 
 	if bawang.KuantitasBawangKg == 0 {
 		bawang.IsEmpty = true
@@ -742,44 +734,44 @@ func (s *BawangContract) ConfirmTrxByID(ctx contractapi.TransactionContextInterf
 }
 
 // Set isRejected to true and retrieve the asset quantity
-func (s *BawangContract) RejectTrxByID(ctx contractapi.TransactionContextInterface, bawangIDPrev, bawangIDReject string, kuantitasPrev float64) (string, error) {
+func (s *BawangContract) RejectTrxByID(ctx contractapi.TransactionContextInterface, bawangIDPrev, bawangIDReject string, kuantitasPrev float64, rejectReason string) (string, error) {
 	
 	// Create new bawang object for previous bawang
 	if len(bawangIDPrev) == 0 {
-		return "", fmt.Errorf("Please pass the correct bawang id")
+		return "", fmt.Errorf("Please pass the correct previous bawang id")
 	}
 
-	bawangAsBytes, err := ctx.GetStub().GetState(bawangIDPrev)
+	bawangPrevAsBytes, err := ctx.GetStub().GetState(bawangIDPrev)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
 	}
 
-	if bawangAsBytes == nil {
+	if bawangPrevAsBytes == nil {
 		return "", fmt.Errorf("%s does not exist", bawangIDPrev)
 	}
 	
 	bawangPrev := new(Bawang)
-	_ = json.Unmarshal(bawangAsBytes, bawangPrev)
+	_ = json.Unmarshal(bawangPrevAsBytes, bawangPrev)
 
 	if len(bawangIDReject) == 0 {
-		return "", fmt.Errorf("Please pass the correct bawang id")
+		return "", fmt.Errorf("Please pass the correct rejected bawang id")
 	}
 
-	bawangAsBytes, err = ctx.GetStub().GetState(bawangIDReject)
+	bawangRejectAsBytes, err := ctx.GetStub().GetState(bawangIDReject)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed to get bawang data. %s", err.Error())
 	}
 
-	if bawangAsBytes == nil {
+	if bawangRejectAsBytes == nil {
 		return "", fmt.Errorf("%s does not exist", bawangIDReject)
 	}
 
 	bawangReject := new(Bawang)
-	_ = json.Unmarshal(bawangAsBytes, bawangReject)
+	_ = json.Unmarshal(bawangRejectAsBytes, bawangReject)
 
-	// Change the confirmed status
+	// Change the rejected status
 	bawangReject.IsRejected = true
 
 	if bawangPrev.BenihAsetID != "" && bawangPrev.BawangAsetID == "" {
@@ -788,14 +780,19 @@ func (s *BawangContract) RejectTrxByID(ctx contractapi.TransactionContextInterfa
 		bawangPrev.KuantitasBawangKg += kuantitasPrev
 	}
 
-	bawangAsBytes, err = json.Marshal(bawangReject)
+	bawangReject.RejectReason = rejectReason
+
+	bawangPrevAsBytes, err = json.Marshal(bawangPrev)
+	bawangRejectAsBytes, err = json.Marshal(bawangReject)
 
 	if err != nil {
 		return "", fmt.Errorf("Failed while marshling bawang. %s", err.Error())
 	}
 
 	// Update the state
-	return bawangIDReject, ctx.GetStub().PutState(bawangReject.ID, bawangAsBytes)
+	ctx.GetStub().PutState(bawangPrev.ID, bawangPrevAsBytes)
+
+	return bawangIDReject, ctx.GetStub().PutState(bawangReject.ID, bawangRejectAsBytes)
 }
 
 // Get bawang object by ID
@@ -978,6 +975,20 @@ func (s *BawangContract) GetHistoryForAssetByID(ctx contractapi.TransactionConte
 	buffer.WriteString("]")
 
 	return string(buffer.Bytes()), nil
+}
+
+// InitLedger
+func (s *BawangContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	// for i, bawang := range bawangs {
+	// 	bawangAsBytes, _ := json.Marshal(bawang)
+	// 	err := ctx.GetStub().PutState("Bawang"+strconv.Itoa(i), bawangAsBytes)
+
+	// 	if err != nil {
+	// 		return fmt.Errorf("Failed to put to world state. %s", err.Error())
+	// 	}
+	// }
+
+	return nil
 }
 
 func main() {

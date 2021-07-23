@@ -161,7 +161,8 @@ const invokeTransaction = async (
             "BawangContract:" + fcn,
             args[0],
             args[1],
-            args[2]
+            args[2],
+            args[3]
           );
           console.log(result.toString());
           result = { txid: result.toString() };

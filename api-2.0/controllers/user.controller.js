@@ -23,7 +23,6 @@ function getErrorMessage(field) {
 
 exports.Register = async (req, res) => {
     var nama = req.body.nama;
-  
     var username = req.body.username;
     var password = req.body.password;
     var orgName = req.body.orgName;
@@ -32,19 +31,19 @@ exports.Register = async (req, res) => {
     logger.debug("Request body : " + req.body);
   
     if (!username) {
-      res.json(getErrorMessage("'username'"));
+      res.status(400).json(getErrorMessage("'username'"));
       return;
     }
     if (!password) {
-      res.json(getErrorMessage("'password'"));
+      res.status(400).json(getErrorMessage("'password'"));
       return;
     }
     if (!nama) {
-      res.json(getErrorMessage("'nama'"));
+      res.status(400).json(getErrorMessage("'nama'"));
       return;
     }
     if (!orgName) {
-      res.json(getErrorMessage("'orgName'"));
+      res.status(400).json(getErrorMessage("'orgName'"));
       return;
     }
   
@@ -90,17 +89,22 @@ exports.Register = async (req, res) => {
 
 exports.Login = async (req, res) => {
     var username = req.body.username;
+    var password = req.body.password;
     var orgName = req.body.orgName;
   
     logger.debug("End point : /users");
     logger.debug("User name : " + username);
     logger.debug("Org name  : " + orgName);
     if (!username) {
-      res.json(getErrorMessage("'username'"));
+      res.status(400).json(getErrorMessage("'username'"));
+      return;
+    }
+    if (!password) {
+      res.status(400).json(getErrorMessage("'password'"));
       return;
     }
     if (!orgName) {
-      res.json(getErrorMessage("'orgName'"));
+      res.status(400).json(getErrorMessage("'orgName'"));
       return;
     }
   
@@ -117,8 +121,6 @@ exports.Login = async (req, res) => {
   
     let isUserRegistered = await helper.isUserRegistered(username, orgName);
   
-    // TODO: error handling when password is false
-  
     if (isUserRegistered) {
       let userDB = await helper.loginUserMongo(req, res, token);
       if (userDB) {
@@ -133,7 +135,7 @@ exports.Login = async (req, res) => {
             user: userDB,
           });
       } else {
-        res.status(404).json({
+        res.status(400).json({
           message: "Username and password combination does not match",
         });
       }

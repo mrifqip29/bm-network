@@ -85,6 +85,17 @@ const { Auth } = require("../middleware/middleware");
 
 router.post("/register", Register);
 
+/**
+ * @swagger
+ * /login:
+ *  post:
+ *      summary: Login user and get token
+ *      tags: [Users]
+ *      responses:
+ *          200:
+ *              description: User succesfully logged in
+ */
+
 
 router.post("/login", Login);
 

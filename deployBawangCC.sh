@@ -57,8 +57,8 @@ presetup() {
 
 CHANNEL_NAME="mychannel"
 CC_RUNTIME_LANGUAGE="golang"
-VERSION="3.17"
-SEQUENCE="38"
+VERSION="3.22"
+SEQUENCE="43"
 CC_SRC_PATH="./artifacts/src/github.com/bawangmerah/go"
 CC_NAME="bawangmerah_cc"
 

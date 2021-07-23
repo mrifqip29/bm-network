@@ -40,19 +40,19 @@ exports.Query = async (req, res) => {
       logger.debug("args : " + args);
 
       if (!chaincodeName) {
-        res.json(getErrorMessage("'chaincodeName'"));
+        res.status(400).json(getErrorMessage("'chaincodeName'"));
         return;
       }
       if (!channelName) {
-        res.json(getErrorMessage("'channelName'"));
+        res.status(400).json(getErrorMessage("'channelName'"));
         return;
       }
       if (!fcn) {
-        res.json(getErrorMessage("'fcn'"));
+        res.status(400).json(getErrorMessage("'fcn'"));
         return;
       }
       if (!args) {
-        res.json(getErrorMessage("'args'"));
+        res.status(400).json(getErrorMessage("'args'"));
         return;
       }
 
@@ -170,7 +170,8 @@ exports.Invoke = async (req, res) => {
         errorData: null,
       };
 
-      res.status(200).send(response_payload);
+      // TODO: change to 201
+      res.status(201).send(response_payload);
     }
 
     // const response_payload = {

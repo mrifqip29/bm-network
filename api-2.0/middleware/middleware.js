@@ -9,14 +9,21 @@ const logger = log4js.getLogger("BasicNetwork");
 exports.Auth = async (req, res, next) => {
     //const token = req.cookies.jwt;
     const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Authorization error",
+      });
+    }
+
     console.log("auth", auth);
     const token = auth.split(" ")[1];
     console.log("token", token);
   
     if (!token) {
       //ini bisa ditambahin res.status(404).redirect("/").json({})
-      return res.status(404).json({
-        message: "tidak ada token",
+      return res.status(401).json({
+        message: "Token not found",
       });
     }
   
@@ -28,12 +35,10 @@ exports.Auth = async (req, res, next) => {
    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         console.log(`Error ================:${err}`);
-        res.send({
+        res.status(401).send({
           success: false,
           message:
-            "Failed to authenticate token. Make sure to include the " +
-            "token returned from /users call in the authorization header " +
-            " as a Bearer token",
+            "Failed to authenticate token."
         });
         return;
       } else {
