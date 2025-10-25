@@ -58,7 +58,7 @@ presetup() {
 CHANNEL_NAME="mychannel"
 CC_RUNTIME_LANGUAGE="golang"
 VERSION="3.22"
-SEQUENCE="1"
+SEQUENCE="3"
 CC_SRC_PATH="./artifacts/src/github.com/bawangmerah/go"
 CC_NAME="bawangmerah_cc"
 
@@ -225,7 +225,7 @@ commitChaincodeDefination() {
         --peerAddresses localhost:8051 --tlsRootCertFiles $PEER0_PETANI_CA \
         --peerAddresses localhost:10051 --tlsRootCertFiles $PEER0_PENGUMPUL_CA \
         --peerAddresses localhost:11051 --tlsRootCertFiles $PEER0_PEDAGANG_CA \
-        --version ${VERSION} --sequence ${SEQUENCE} --init-required
+        --version ${VERSION} --sequence ${SEQUENCE} # --init-required
 
 }
 
@@ -324,7 +324,15 @@ approveForMyPedagang
 checkCommitReadynessPedagang
 commitChaincodeDefination
 queryCommitted
-chaincodeInvokeInit
+
+# Only initialize on first deployment (sequence 1)
+if [ "$SEQUENCE" = "1" ]; then
+    echo "===================== Initializing chaincode (first deployment) ====================="
+    chaincodeInvokeInit
+else
+    echo "===================== Skipping initialization (upgrade from sequence $((SEQUENCE-1)) to $SEQUENCE) ====================="
+fi
+
 # sleep 5
 # chaincodeInvoke
 # sleep 3

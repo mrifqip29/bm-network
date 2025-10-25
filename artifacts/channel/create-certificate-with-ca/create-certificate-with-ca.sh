@@ -594,3 +594,23 @@ createCertificatesForPedagang
 
 createCretificatesForOrderer
 
+echo ""
+echo "======================================"
+echo "Updating API Connection Profiles..."
+echo "======================================"
+
+# Update connection profiles in API config
+if [ -f "../../api-2.0/config/update-connection-profiles.sh" ]; then
+    cd ../../api-2.0/config
+    ./update-connection-profiles.sh
+    cd -
+    echo "✓ API connection profiles updated successfully!"
+else
+    echo "⚠ Warning: update-connection-profiles.sh not found, skipping API config update"
+    echo "  You may need to manually update the connection profiles in api-2.0/config/"
+fi
+
+echo ""
+echo "======================================"
+echo "Certificate generation complete!"
+echo "======================================"

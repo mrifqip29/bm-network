@@ -48,7 +48,7 @@ const invokeTransaction = async (
     const connectOptions = {
       wallet,
       identity: username,
-      discovery: { enabled: true, asLocalhost: true },
+      discovery: { enabled: true, asLocalhost: false },
       eventHandlerOptions: EventStrategies.NONE,
     };
 

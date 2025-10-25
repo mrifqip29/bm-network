@@ -62,7 +62,7 @@ const queryTransaction = async (
     await gateway.connect(ccp, {
       wallet,
       identity: username,
-      discovery: { enabled: true, asLocalhost: true },
+      discovery: { enabled: true, asLocalhost: false },
     });
 
     // Get the network (channel) our contract is deployed to.
