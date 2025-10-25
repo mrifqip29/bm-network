@@ -63,7 +63,7 @@ This script will:
 
 Create the genesis block and channel configuration.
 
-**Option A: Using Docker (No local Fabric binaries required)**
+**Option A: Using Docker (No local Fabric binaries required) recommended**
 
 ```bash
 cd artifacts/channel
@@ -119,7 +119,7 @@ This script will:
 - Join all 4 peer organizations to the channel
 - Update anchor peers for each organization
 
-### Step 7: Deploy Chaincode
+### Step 7: Deploy Chaincode/Smartcontract
 
 Deploy the Bawang Merah chaincode:
 
@@ -141,8 +141,7 @@ Install dependencies and start the REST API server:
 
 ```bash
 cd api-2.0
-npm install
-npm start
+docker-compose up -d
 ```
 
 The API server will start on port 4000 (default).
@@ -203,10 +202,13 @@ cd ../..
 
 **Option 2: Install Fabric binaries locally**
 ```bash
+
 # Download Fabric binaries version 2.1.0
-curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.1.0 1.4.7
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.0 1.4.9
 
 # Add to PATH
+Your shell terminal might be using zsh or bash, please change accordingly
+
 export PATH=$PATH:$HOME/fabric-samples/bin
 echo 'export PATH=$PATH:$HOME/fabric-samples/bin' >> ~/.zshrc
 source ~/.zshrc
