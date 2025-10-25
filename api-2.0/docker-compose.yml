@@ -24,6 +24,8 @@ services:
       - ../artifacts:/app/../artifacts:ro
     networks:
       - bm-network
+      - create-certificate-with-ca_test
+      - artifacts_test
     restart: unless-stopped
     command: node app.js
 
@@ -48,6 +50,10 @@ services:
 networks:
   bm-network:
     driver: bridge
+  create-certificate-with-ca_test:
+    external: true
+  artifacts_test:
+    external: true
 
 volumes:
   mongo-data:

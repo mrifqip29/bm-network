@@ -24,7 +24,7 @@
     },
     "peers": {
         "peer0.petani.example.com": {
-            "url": "grpcs://localhost:8051",
+            "url": "grpcs://peer0.petani.example.com:8051",
             "tlsCACerts": {
                 "pem": "-----BEGIN CERTIFICATE-----\nMIICFjCCAb2gAwIBAgIUJDaTGGYN/AFZCopAxzxM5bVL6b0wCgYIKoZIzj0EAwIw\naDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMt\nY2Etc2VydmVyMB4XDTIxMDMyMzA0MTUwMFoXDTM2MDMxOTA0MTUwMFowaDELMAkG\nA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQKEwtIeXBl\ncmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMtY2Etc2Vy\ndmVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdg2ht1UdAbg69QlvraA2AD/H\noPPwxOHzxXN5f0qEsgqfnaM5x35V9PwXcRP5lD9MZF7mKfzlaL0eXVskjYQHtaNF\nMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYE\nFG4FivX1KJq9g4uEhdPaPUYgSh/2MAoGCCqGSM49BAMCA0cAMEQCIDG4qeA+IJ73\nPXBH85cJQtWz+XH5uYCuwKQRjOhc8HVrAiBCyEWo1BtR6Z9aLlEREYZtCtl85KyY\nLzW+fdHGzP0gXw==\n-----END CERTIFICATE-----\n"
             },
@@ -38,7 +38,7 @@
     },
     "certificateAuthorities": {
         "ca.petani.example.com": {
-            "url": "https://localhost:8054",
+            "url": "https://ca.petani.example.com:8054",
             "caName": "ca.petani.example.com",
             "tlsCACerts": {
                 "pem": "-----BEGIN CERTIFICATE-----\nMIICFjCCAb2gAwIBAgIUJDaTGGYN/AFZCopAxzxM5bVL6b0wCgYIKoZIzj0EAwIw\naDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMt\nY2Etc2VydmVyMB4XDTIxMDMyMzA0MTUwMFoXDTM2MDMxOTA0MTUwMFowaDELMAkG\nA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQKEwtIeXBl\ncmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMtY2Etc2Vy\ndmVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdg2ht1UdAbg69QlvraA2AD/H\noPPwxOHzxXN5f0qEsgqfnaM5x35V9PwXcRP5lD9MZF7mKfzlaL0eXVskjYQHtaNF\nMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYE\nFG4FivX1KJq9g4uEhdPaPUYgSh/2MAoGCCqGSM49BAMCA0cAMEQCIDG4qeA+IJ73\nPXBH85cJQtWz+XH5uYCuwKQRjOhc8HVrAiBCyEWo1BtR6Z9aLlEREYZtCtl85KyY\nLzW+fdHGzP0gXw==\n-----END CERTIFICATE-----\n"
