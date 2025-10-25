@@ -21,8 +21,8 @@ One Orderer Org
 
 - Docker and Docker Compose
 - Node.js (v14 or higher)
-- Hyperledger Fabric binaries (peer, configtxgen, fabric-ca-client)
-- Go (for chaincode compilation)
+- **Optional:** Hyperledger Fabric binaries (peer, configtxgen, fabric-ca-client) - Can use Docker instead
+- Go (for chaincode compilation - only if modifying chaincode)
 
 ## Setup and Run Instructions
 
@@ -61,7 +61,17 @@ This script will:
 
 ### Step 4: Generate Channel Artifacts
 
-Create the genesis block and channel configuration:
+Create the genesis block and channel configuration.
+
+**Option A: Using Docker (No local Fabric binaries required)**
+
+```bash
+cd artifacts/channel
+./create-artifacts-docker.sh
+cd ../..
+```
+
+**Option B: Using local Fabric binaries**
 
 ```bash
 cd artifacts/channel
@@ -179,6 +189,31 @@ cd ..
 ```
 
 ## Troubleshooting
+
+### `configtxgen: command not found`
+
+If you get this error when running `create-artifacts.sh`, you have two options:
+
+**Option 1: Use the Docker version (Recommended)**
+```bash
+cd artifacts/channel
+./create-artifacts-docker.sh
+cd ../..
+```
+
+**Option 2: Install Fabric binaries locally**
+```bash
+# Download Fabric binaries version 2.1.0
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.1.0 1.4.7
+
+# Add to PATH
+export PATH=$PATH:$HOME/fabric-samples/bin
+echo 'export PATH=$PATH:$HOME/fabric-samples/bin' >> ~/.zshrc
+source ~/.zshrc
+
+# Verify installation
+configtxgen --version
+```
 
 ### Check Container Logs
 
