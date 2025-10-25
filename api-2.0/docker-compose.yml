@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  api-2.0:
+    build: .
+    container_name: bm-api-2.0
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - MONGO_URL=mongodb://mongo:27017/bawangmerah
+      - JWT_SECRET=${JWT_SECRET:-supersecretkey123}
+    depends_on:
+      - mongo
+    volumes:
+      # Mount wallet directories to persist identity data
+      - ./penangkar-wallet:/app/penangkar-wallet
+      - ./petani-wallet:/app/petani-wallet
+      - ./pengumpul-wallet:/app/pengumpul-wallet
+      - ./pedagang-wallet:/app/pedagang-wallet
+      # Mount config files
+      - ./config:/app/config
+      # Mount artifacts for Fabric network connection (adjust path as needed)
+      - ../artifacts:/app/../artifacts:ro
+    networks:
+      - bm-network
+    restart: unless-stopped
+    command: node app.js
+
+  mongo:
+    image: mongo:5.0
+    container_name: bm-mongo-2.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=bawangmerah
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - bm-network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/bawangmerah --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  bm-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+
