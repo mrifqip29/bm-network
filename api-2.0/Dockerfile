@@ -5,7 +5,7 @@ FROM node:12-alpine
 WORKDIR /app
 
 # Install build dependencies for native modules
-RUN apk add --no-cache python3 make g++
+RUN apk add python3 make g++
 
 # Copy package files
 COPY package*.json ./

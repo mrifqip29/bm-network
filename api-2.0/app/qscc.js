@@ -34,7 +34,7 @@ const qscc = async (channelName, chaincodeName, args, fcn, username, org_name) =
 
         const gateway = new Gateway();
         await gateway.connect(ccp, {
-            wallet, identity: username, discovery: { enabled: true, asLocalhost: false }
+            wallet, identity: username, discovery: { enabled: true, asLocalhost: false }  // false = use container hostnames
         });
 
         const network = await gateway.getNetwork(channelName);

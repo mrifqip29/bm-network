@@ -62,7 +62,7 @@ const queryTransaction = async (
     await gateway.connect(ccp, {
       wallet,
       identity: username,
-      discovery: { enabled: true, asLocalhost: false },
+      discovery: { enabled: true, asLocalhost: false },  // false = use container hostnames (API in Docker)
     });
 
     // Get the network (channel) our contract is deployed to.

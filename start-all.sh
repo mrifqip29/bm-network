@@ -85,8 +85,8 @@ main() {
     log_step "1/9" "Starting Certificate Authority services..."
     cd "$SCRIPT_DIR/artifacts/channel/create-certificate-with-ca"
     docker-compose up -d
-    log_info "Waiting for CA services to be ready (20s)..."
-    sleep 20
+    log_info "Waiting for CA services to be ready (15s)..."
+    sleep 15
     log_info "✓ CA services started"
     
     # ============================================
@@ -120,8 +120,8 @@ main() {
     log_step "4/9" "Starting orderers, peers, and CouchDB..."
     cd "$SCRIPT_DIR/artifacts"
     docker-compose up -d
-    log_info "Waiting for network components to start (20s)..."
-    sleep 20
+    log_info "Waiting for network components to start (15s)..."
+    sleep 15
     log_info "✓ Network components started"
     
     # ============================================
@@ -141,14 +141,17 @@ main() {
     log_info "✓ Chaincode deployed and initialized"
     
     # ============================================
-    # Step 7: Start API Server
+    # Step 7: Build and Start API Server
     # ============================================
-    log_step "7/9" "Starting REST API server..."
+    log_step "7/9" "Building and starting REST API server..."
     cd "$SCRIPT_DIR/api-2.0"
+    log_info "Building API Docker image with latest code..."
+    docker-compose build
+    log_info "Starting API server..."
     docker-compose up -d
     log_info "Waiting for API to start (15s)..."
     sleep 15
-    log_info "✓ API server started"
+    log_info "✓ API server built and started"
     
     # ============================================
     # Step 8: Verify Network

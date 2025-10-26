@@ -23,23 +23,19 @@ const invokeTransaction = async (
   args,
   username,
   orgName,
-  transientData
+  transientData,
+  peers
 ) => {
   try {
     const ccp = await helper.getCCP(orgName);
 
     const walletPath = await helper.getWalletPath(orgName);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
 
     let identity = await wallet.get(username);
     if (!identity) {
-      console.log(
-        `An identity for the user ${username} does not exist in the wallet, so registering user`
-      );
       await helper.getRegisteredUser(username, orgName, true);
       identity = await wallet.get(username);
-      console.log("Register first before retrying ");
       return;
     }
 
@@ -48,7 +44,10 @@ const invokeTransaction = async (
     const connectOptions = {
       wallet,
       identity: username,
-      discovery: { enabled: true, asLocalhost: false },
+      discovery: { 
+        enabled: true, 
+        asLocalhost: false 
+      },
       eventHandlerOptions: EventStrategies.NONE,
     };
 
@@ -64,109 +63,71 @@ const invokeTransaction = async (
     // Multiple smartcontract in one chaincode
     let result;
     let message;
+    let transaction;
 
+    // Helper function to create transaction - let SDK handle endorsement automatically
+    const createTransaction = (txName) => {
+      return contract.createTransaction(txName);
+    };
 
     switch (fcn) {
       case "CreateBenih":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0]
-        );
-        console.log(result.toString());
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0]);
         result = { txid: result.toString() };
         break;
       case "PlantBenih":
-          result = await contract.submitTransaction(
-            "BawangContract:" + fcn,
-            args[0],
-            args[1]
-          );
-          console.log(result.toString());
-          result = { txid: result.toString() };
-          break;
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
+        result = { txid: result.toString() };
+        break;
       case "HarvestBawang":
-          result = await contract.submitTransaction(
-            "BawangContract:" + fcn,
-            args[0],
-            args[1]
-          );
-          console.log(result.toString());
-          result = { txid: result.toString() };
-          break;
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
+        result = { txid: result.toString() };
+        break;
       case "CreateUser":
-        result = await contract.submitTransaction(
-          "UserContract:" + fcn,
-          args[0]
-        );
-        console.log(result.toString());
+        transaction = createTransaction("UserContract:" + fcn);
+        result = await transaction.submit(args[0]);
         result = { txid: result.toString() };
         break;
       case "CreateTrxBawangByPenangkar":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0],
-          args[1]
-        );
-        console.log(result.toString());
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
         result = { txid: result.toString() };
         break;
       case "UpdateBawangTrxByPetani":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0],
-          args[1]
-        );
-        console.log(result.toString());
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
         result = { txid: result.toString() };
         break;
       case "UpdateBawangTrxByPengumpul":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0],
-          args[1]
-        );
-        console.log(result.toString());
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
         result = { txid: result.toString() };
         break;
       case "AddBenihKuantitasByID":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0],
-          args[1]
-        );
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
 	      var data = JSON.parse(result.toString())
-        console.log(result.toString());
         result = { bawang: data };
         break;
       case "AddBawangKuantitasByID":
-        result = await contract.submitTransaction(
-          "BawangContract:" + fcn,
-          args[0],
-          args[1]
-        );
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1]);
 	      var data = JSON.parse(result.toString())
-        console.log(result.toString());
         result = { bawang: data };
         break;
       case "ConfirmTrxByID":
-          result = await contract.submitTransaction(
-            "BawangContract:" + fcn,
-            args[0]
-          );
-          console.log(result.toString());
-          result = { txid: result.toString() };
-          break;
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0]);
+        result = { txid: result.toString() };
+        break;
       case "RejectTrxByID":
-          result = await contract.submitTransaction(
-            "BawangContract:" + fcn,
-            args[0],
-            args[1],
-            args[2],
-            args[3]
-          );
-          console.log(result.toString());
-          result = { txid: result.toString() };
-          break;
+        transaction = createTransaction("BawangContract:" + fcn);
+        result = await transaction.submit(args[0], args[1], args[2], args[3]);
+        result = { txid: result.toString() };
+        break;
 
       default:
         break;
@@ -209,8 +170,29 @@ const invokeTransaction = async (
 
     return response;
   } catch (error) {
-    console.log(`Getting error: ${error}`);
-    return error.message;
+    let errorMessage = error.message || 'Unknown error occurred';
+    
+    if (error.endorsements) {
+      const endorsementErrors = error.endorsements.map((endorsement, index) => {
+        const peerName = (peers && peers[index]) || endorsement.peer || 'unknown peer';
+        return `peer=${peerName}, status=${endorsement.status || 'unknown'}, message=${endorsement.message || 'no message'}`;
+      }).join('\n    ');
+      errorMessage = `No valid responses from any peers. Errors:\n    ${endorsementErrors}`;
+    } else if (error.responses) {
+      const responseErrors = error.responses.map((response, index) => {
+        const peerName = (peers && peers[index]) || response.peer || (response.connection && response.connection.name) || 'unknown peer';
+        return `peer=${peerName}, status=${response.status || 'unknown'}, message=${response.message || error.message}`;
+      }).join('\n    ');
+      errorMessage = `No valid responses from any peers. Errors:\n    ${responseErrors}`;
+    } else if (error.errors) {
+      const errors = error.errors.map((err, index) => {
+        const peerName = (peers && peers[index]) || err.peer || 'unknown peer';
+        return `peer=${peerName}, message=${err.message || err.toString()}`;
+      }).join('\n    ');
+      errorMessage = `Transaction failed. Errors:\n    ${errors}`;
+    }
+    
+    return errorMessage;
   }
 };
 

@@ -149,7 +149,8 @@ exports.Invoke = async (req, res) => {
       args,
       req.username,
       req.orgName,
-      transient
+      transient,
+      peers
     );
     console.log(`message result is :`);
 
